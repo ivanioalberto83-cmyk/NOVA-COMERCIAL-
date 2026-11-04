@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="pt-PT">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101a36">
+  <meta name="description" content="UNIVERSO NOVA — ecossistema digital integrado, modular e preparado para empresas, serviços e comunidades.">
+  <title>UNIVERSO NOVA | Ecossistema Digital</title>
+  <style>
+    :root{color-scheme:dark;--bg:#0b1224;--panel:#121e38;--panel2:#172746;--line:#293b5e;--text:#f4f7ff;--muted:#a9b8d3;--cyan:#55d6d0;--gold:#f4c76b;--blue:#7da7ff;--radius:22px;--max:1160px}
+    *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:radial-gradient(ellipse at 78% 0%,#1b3762 0,transparent 36%),linear-gradient(180deg,#0b1224,#0e1930 55%,#0b1224);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.6}
+    a{color:inherit}.wrap{width:min(var(--max),calc(100% - 40px));margin:auto}.topbar{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:22px 0;border-bottom:1px solid #ffffff16}.brand{display:flex;align-items:center;gap:12px;text-decoration:none;font-weight:800;letter-spacing:.08em}.mark{width:42px;height:42px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg,var(--cyan),#5279d9);color:#071426;font-size:20px;font-weight:900}.brand small{display:block;color:var(--muted);font-size:10px;letter-spacing:.2em;font-weight:600}.nav{display:flex;gap:22px;flex-wrap:wrap}.nav a{text-decoration:none;color:var(--muted);font-size:14px}.nav a:hover,.nav a:focus-visible{color:var(--cyan)}
+    .hero{padding:82px 0 64px;display:grid;grid-template-columns:1.2fr .8fr;gap:44px;align-items:center}.eyebrow{color:var(--cyan);font-size:12px;font-weight:800;letter-spacing:.2em;text-transform:uppercase}.hero h1{font-size:clamp(42px,6vw,76px);line-height:1.02;letter-spacing:-.055em;margin:18px 0}.hero h1 span{color:var(--cyan)}.lead{font-size:18px;color:var(--muted);max-width:650px}.actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:28px}.btn{display:inline-flex;align-items:center;justify-content:center;padding:12px 18px;border-radius:999px;text-decoration:none;font-weight:750;font-size:14px;border:1px solid var(--line);background:#ffffff08}.btn.primary{background:var(--cyan);color:#071426;border-color:var(--cyan)}.btn:hover{transform:translateY(-2px);filter:brightness(1.08)}
+    .orbit{min-height:300px;display:grid;place-items:center;position:relative}.core{width:180px;height:180px;border-radius:50%;display:grid;place-items:center;text-align:center;background:radial-gradient(circle at 35% 30%,#294d77,#142642 68%);border:1px solid #6bded477;box-shadow:0 0 80px #55d6d033}.core strong{font-size:21px;letter-spacing:.12em}.core small{display:block;color:var(--cyan);font-size:10px;letter-spacing:.2em}.orbit:before,.orbit:after{content:"";position:absolute;border:1px solid #6c8ab455;border-radius:50%;width:270px;height:270px;transform:rotate(-25deg)}.orbit:after{width:330px;height:190px;transform:rotate(35deg)}.node{position:absolute;padding:8px 12px;border:1px solid var(--line);background:#13213c;border-radius:12px;font-size:12px;color:#dce8ff}.n1{top:8%;left:4%}.n2{top:12%;right:0}.n3{bottom:10%;left:0}.n4{bottom:8%;right:5%}
+    section{padding:54px 0}.section-head{max-width:720px;margin-bottom:26px}.section-head h2{font-size:clamp(28px,4vw,42px);line-height:1.1;letter-spacing:-.035em;margin:10px 0}.section-head p{color:var(--muted);margin:0}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}.card{background:linear-gradient(145deg,#172746dd,#111d35ee);border:1px solid var(--line);border-radius:var(--radius);padding:22px;min-height:220px;display:flex;flex-direction:column}.card-top{display:flex;align-items:center;justify-content:space-between;gap:10px}.symbol{width:42px;height:42px;border-radius:13px;background:#55d6d018;border:1px solid #55d6d044;display:grid;place-items:center;color:var(--cyan);font-weight:900}.status{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--gold);border:1px solid #f4c76b55;border-radius:999px;padding:5px 8px}.status.live{color:var(--cyan);border-color:#55d6d055}.card h3{font-size:19px;margin:17px 0 6px}.card p{font-size:14px;color:var(--muted);margin:0 0 18px}.card .link{margin-top:auto;color:var(--cyan);text-decoration:none;font-size:14px;font-weight:750}.card .link[aria-disabled=true]{color:#8797b2;cursor:default}.architecture{display:grid;grid-template-columns:1fr 1fr;gap:16px}.arch{padding:22px;border:1px solid var(--line);border-radius:var(--radius);background:#101d36}.arch h3{margin:0 0 8px}.arch p,.arch li{color:var(--muted);font-size:14px}.arch ul{padding-left:20px;margin-bottom:0}.notice{border-left:3px solid var(--gold);padding:14px 18px;background:#f4c76b0c;color:var(--muted);border-radius:0 12px 12px 0;font-size:13px;margin-top:20px}
+    footer{border-top:1px solid #ffffff18;padding:26px 0 38px;color:var(--muted);font-size:13px}.foot{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}.foot strong{color:var(--text)}
+    :focus-visible{outline:3px solid var(--gold);outline-offset:3px}
+    @media(max-width:820px){.hero{grid-template-columns:1fr;padding:60px 0 38px}.orbit{min-height:280px}.grid{grid-template-columns:repeat(2,1fr)}.architecture{grid-template-columns:1fr}.nav{gap:12px}}
+    @media(max-width:560px){.wrap{width:min(100% - 28px,var(--max))}.topbar{align-items:flex-start;flex-direction:column}.nav{font-size:12px}.hero{padding-top:48px}.hero h1{font-size:48px}.lead{font-size:16px}.orbit{transform:scale(.88);margin:-8px -20px}.grid{grid-template-columns:1fr}.card{min-height:190px}section{padding:38px 0}}
+    @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{transition:none!important;transform:none!important}}
+  </style>
+</head>
+<body>
+  <header class="wrap topbar">
+    <a class="brand" href="#inicio" aria-label="UNIVERSO NOVA, início"><span class="mark" aria-hidden="true">N</span><span>UNIVERSO NOVA<small>ECOSSISTEMA DIGITAL</small></span></a>
+    <nav class="nav" aria-label="Navegação principal"><a href="#produtos">Produtos</a><a href="#arquitectura">Como funciona</a><a href="#principios">Princípios</a></nav>
+  </header>
+  <main id="inicio">
+    <div class="wrap hero">
+      <div>
+        <div class="eyebrow">Um ecossistema. Várias soluções. Uma visão.</div>
+        <h1>O digital a trabalhar <span>em conjunto.</span></h1>
+        <p class="lead">O UNIVERSO NOVA reúne soluções digitais independentes, concebidas para comunicar entre si com segurança, respeitando os dados, as operações e as necessidades de cada organização.</p>
+        <div class="actions"><a class="btn primary" href="#produtos">Explorar produtos</a><a class="btn" href="#arquitectura">Conhecer a arquitectura</a></div>
+      </div>
+      <div class="orbit" aria-label="Representação conceptual do núcleo UNIVERSO NOVA ligado aos seus produtos">
+        <span class="node n1">NOVA KZ</span><span class="node n2">NOVA TÁXI</span><span class="node n3">NOVA TODDLE</span><span class="node n4">KONECTA</span>
+        <div class="core"><div><strong>NOVA</strong><small>CORE PARTILHADO</small></div></div>
+      </div>
+    </div>
+    <section id="produtos">
+      <div class="wrap">
+        <div class="section-head"><div class="eyebrow">Ecossistema de produtos</div><h2>Soluções próprias, ligadas por uma base comum.</h2><p>Cada produto mantém a sua finalidade e autonomia. Os acessos abaixo apontam apenas para endereços já identificados.</p></div>
+        <div class="grid">
+          <article class="card"><div class="card-top"><span class="symbol">KZ</span><span class="status live">Endereço disponível</span></div><h3>NOVA KZ</h3><p>Solução digital do ecossistema NOVA.</p><a class="link" href="https://nova-kz.vercel.app/" target="_blank" rel="noopener noreferrer">Abrir NOVA KZ ↗</a></article>
+          <article class="card"><div class="card-top"><span class="symbol">TX</span><span class="status">Endereço por confirmar</span></div><h3>NOVA TÁXI</h3><p>Experiência digital para passageiros e motoristas, com acessos próprios.</p><span class="link" aria-disabled="true">Acesso a configurar após validação do endereço</span></article>
+          <article class="card"><div class="card-top"><span class="symbol">TD</span><span class="status live">Endereço disponível</span></div><h3>NOVA TODDLE</h3><p>Solução dedicada ao contexto escolar e à gestão educativa.</p><a class="link" href="https://nova-toddle-escolar.vercel.app/" target="_blank" rel="noopener noreferrer">Abrir NOVA TODDLE ↗</a></article>
+          <article class="card"><div class="card-top"><span class="symbol">KC</span><span class="status live">Endereço disponível</span></div><h3>KONECTA</h3><p>Directório e ligação entre pessoas, serviços e organizações.</p><a class="link" href="https://konecta-diretorio.vercel.app/" target="_blank" rel="noopener noreferrer">Abrir KONECTA ↗</a></article>
+          <article class="card"><div class="card-top"><span class="symbol">CM</span><span class="status">Em estruturação</span></div><h3>NOVA COMERCIAL</h3><p>ERP modular para empresas, grupos empresariais e diferentes sectores de actividade.</p><span class="link" aria-disabled="true">Acesso a configurar após publicação</span></article>
+        </div>
+      </div>
+    </section>
+    <section id="arquitectura">
+      <div class="wrap">
+        <div class="section-head"><div class="eyebrow">Integração com controlo</div><h2>Interligados, sem misturar tudo.</h2><p>A integração será construída por camadas. O núcleo partilha serviços autorizados; cada produto conserva o seu domínio operacional.</p></div>
+        <div class="architecture">
+          <article class="arch"><h3>NOVA CORE — serviços comuns</h3><p>Camada central prevista para gerir os serviços transversais do ecossistema.</p><ul><li>Identidade e autenticação centralizadas, quando implementadas</li><li>Empresas, grupos e perfis de acesso</li><li>Catálogo de produtos e permissões</li><li>Auditoria e registo de eventos</li></ul></article>
+          <article class="arch"><h3>Produtos — autonomia operacional</h3><p>Aplicações e serviços independentes, ligados através de interfaces autenticadas.</p><ul><li>Bases de dados e regras de acesso separadas</li><li>Integrações através de APIs e adaptadores</li><li>Permissões específicas por produto e empresa</li><li>Falhas isoladas, sem propagação automática</li></ul></article>
+          <article class="arch"><h3>NOVA BILLING</h3><p>Camada prevista para planos, subscrições, pagamentos, cobranças e facturação, com regras por contrato e jurisdição.</p></article>
+          <article class="arch"><h3>NOVA AUDIT</h3><p>Camada prevista para rastreabilidade, origem dos eventos, autoria, data, integridade e consulta controlada.</p></article>
+        </div>
+        <div class="notice">Nota de transparência: esta primeira página é uma entrada institucional e um mapa de acessos. Não implementa, por si só, autenticação única (SSO), sincronização de dados, APIs, pagamentos ou integração técnica entre bases de dados. Essas ligações exigem serviços próprios, configuração e testes de segurança.</div>
+      </div>
+    </section>
+    <section id="principios">
+      <div class="wrap">
+        <div class="section-head"><div class="eyebrow">Princípios do UNIVERSO NOVA</div><h2>Uma visão comum. Responsabilidades claras.</h2></div>
+        <div class="grid">
+          <article class="card"><div class="symbol">01</div><h3>Segurança por desenho</h3><p>Autenticação, autorização e isolamento de dados como requisitos fundamentais.</p></article>
+          <article class="card"><div class="symbol">02</div><h3>Modularidade</h3><p>Cada organização activa os produtos e módulos de que necessita.</p></article>
+          <article class="card"><div class="symbol">03</div><h3>Interoperabilidade</h3><p>Integrações documentadas, versionadas e controladas por permissões.</p></article>
+        </div>
+      </div>
+    </section>
+  </main>
+  <footer><div class="wrap foot"><div><strong>UNIVERSO NOVA</strong><br>Ecossistema digital integrado.</div><div>© <span id="year">2026</span> UNIVERSO NOVA. Todos os direitos reservados.</div></div></footer>
+</body>
+</html>
