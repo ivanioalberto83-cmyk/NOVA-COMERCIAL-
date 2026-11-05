@@ -21,7 +21,7 @@ Estabelecer uma identidade transversal para o UNIVERSO NOVA, com ambiente empres
 | surface | #FFFFFF | Cartões e painéis |
 | surface-soft | #EDF1F3 | Superfícies secundárias |
 | text-primary | #263442 | Texto principal |
-| text-secondary | #687785 | Texto secundário |
+| text-secondary | #64717D | Texto secundário com contraste AA sobre o fundo principal |
 | border | #DCE3E7 | Separadores |
 | success | #34765A | Sucesso |
 | warning | #A96E24 | Avisos |
@@ -46,6 +46,23 @@ Inter é a família tipográfica de referência, com alternativas de sistema. A 
 
 O tema claro é o padrão. O tema escuro é opcional, accionado pelo utilizador e guardado localmente no navegador. A preferência visual não altera autenticação, autorização ou permissões.
 
+Tokens escuros comuns às duas páginas:
+
+| Token | Valor |
+|---|---|
+| background | #17212B |
+| surface | #202D38 |
+| surface-soft | #293947 |
+| border | #3B4B59 |
+| text-primary | #F5F6F4 |
+| text-secondary | #B6C1CB |
+| brand-primary | #7FA5C4 |
+| brand-secondary | #9DBCD5 |
+| brand-contrast | #17212B |
+| brand-accent | #D9B77A |
+
+O dourado #B58B50 é reservado a acentos gráficos e não a texto corrido sobre o fundo claro. Os textos auxiliares usam #64717D para cumprir o contraste mínimo WCAG 2.1 AA no fundo #F5F6F4.
+
 ## 6. Logótipo
 
 Foi criado o primeiro lockup vectorial do UNIVERSO NOVA em assets/galeria/universo-nova-logo-oficial.svg. O símbolo combina um N azul com uma órbita dourada; o wordmark usa azul institucional. A composição inclui “ECOSSISTEMA DIGITAL” e o lema “Inovar • Integrar • Crescer”.
@@ -54,7 +71,8 @@ O logótipo é a primeira versão gráfica integrada nesta branch. A validação
 
 ## 7. Âmbito implementado
 
-- Actualização da apresentação visual de index.html.
+- Actualização da apresentação visual de index.html e comercial/index.html com os mesmos tokens cromáticos.
+- Tema claro e escuro alinhados nas duas páginas, com contraste de texto secundário corrigido.
 - Inclusão do logótipo vectorial em assets/galeria/.
 - Tema claro como padrão e alternância para tema escuro.
 - Preservação do conteúdo institucional, navegação e ligações de produtos existentes.
