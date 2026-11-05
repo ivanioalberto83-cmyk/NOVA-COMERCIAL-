@@ -1,9 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { MembershipStatus, PrismaClient } from '@prisma/client';
+import { MembershipStatus } from '@prisma/client';
+import { PrismaService } from '../persistence/prisma.service';
 
 @Injectable()
 export class IdentityRepository {
-  constructor(private readonly prisma: PrismaClient) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   async findActiveMembership(
     userId: string,
