@@ -41,6 +41,78 @@ export class IdentityRepository {
     });
   }
 
+  async findUserForAuthentication(email: string) {
+    return this.prisma.user.findUnique({
+      where: { email },
+      select: {
+        id: true,
+        status: true,
+        credential: {
+          select: { passwordHash: true, failedLoginAttempts: true, lockedUntil: true },
+        },
+      },
+    });
+  }
+
+  async recordFailedLogin(userId: string, now = new Date()): Promise<void> {
+    await this.prisma.$transaction(async (tx) => {
+      const credential = await tx.credential.update({
+        where: { userId },
+        data: { failedLoginAttempts: { increment: 1 } },
+        select: { failedLoginAttempts: true },
+      });
+      if (credential.failedLoginAttempts >= 5) {
+        await tx.credential.update({
+          where: { userId },
+          data: { lockedUntil: new Date(now.getTime() + 15 * 60 * 1000) },
+        });
+      }
+    });
+  }
+
+  async clearFailedLogins(userId: string): Promise<void> {
+    await this.prisma.credential.update({
+      where: { userId },
+      data: { failedLoginAttempts: 0, lockedUntil: null },
+    });
+  }
+
+  async findRefreshSessionByHash(refreshTokenHash: string) {
+    return this.prisma.securitySession.findUnique({
+      where: { refreshTokenHash },
+      include: {
+        membership: {
+          include: {
+            user: { select: { id: true, status: true } },
+            organization: { select: { id: true, status: true } },
+            product: { select: { id: true, code: true, status: true } },
+          },
+        },
+      },
+    });
+  }
+
+  async rotateRefreshSession(
+    sessionId: string,
+    oldHash: string,
+    newHash: string,
+    now = new Date(),
+  ): Promise<boolean> {
+    const result = await this.prisma.securitySession.updateMany({
+      where: { id: sessionId, refreshTokenHash: oldHash, revokedAt: null, expiresAt: { gt: now } },
+      data: { refreshTokenHash: newHash, lastUsedAt: now },
+    });
+    return result.count === 1;
+  }
+
+  async revokeRefreshSessionByHash(refreshTokenHash: string): Promise<boolean> {
+    const result = await this.prisma.securitySession.updateMany({
+      where: { refreshTokenHash, revokedAt: null },
+      data: { revokedAt: new Date() },
+    });
+    return result.count === 1;
+  }
+
   async createSession(input: {
     membershipId: string;
     organizationId: string;
