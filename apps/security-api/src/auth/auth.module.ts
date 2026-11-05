@@ -8,7 +8,11 @@ import { PasswordService } from './password.service';
 @Module({
   imports: [IdentityModule],
   controllers: [AuthController],
-  providers: [AuthService, PasswordService, AuthTokenService],
+  providers: [
+    AuthService,
+    PasswordService,
+    { provide: AuthTokenService, useFactory: () => new AuthTokenService(process.env.JWT_SECRET ?? '') },
+  ],
   exports: [AuthService, AuthTokenService, PasswordService],
 })
 export class AuthModule {}
