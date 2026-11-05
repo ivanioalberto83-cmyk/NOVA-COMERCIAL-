@@ -44,7 +44,7 @@ npm run test:auth:integration
 npm run build
 ```
 
-Os testes de integração exigem uma base PostgreSQL descartável configurada em `DATABASE_URL`. O pipeline cria um PostgreSQL efémero, valida o schema, aplica as migrações e executa os testes de isolamento.
+Os testes de integração exigem uma base PostgreSQL descartável configurada em `DATABASE_URL` e a opção explícita `NOVA_ALLOW_DESTRUCTIVE_TEST_DATABASE=true`. O guard só aceita os alvos locais aprovados `nova_security_local:54329` (Docker Compose local) e `nova_security_test:5432` (PostgreSQL efémero do CI); rejeita hosts remotos, nomes de base diferentes e ausência da opção. O pipeline define a opção apenas no job que provisiona o PostgreSQL efémero. Nunca apontar estes testes a uma base partilhada ou de produção.
 
 ## Persistência e identidade já incluídas
 
