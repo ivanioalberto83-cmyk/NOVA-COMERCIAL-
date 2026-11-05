@@ -77,6 +77,8 @@ describe('permission delegation', () => {
   it('blocks privilege escalation beyond the actor delegation ceiling', () => {
     assert.equal(canGrantAccess({
       actor: principal,
+      targetTenantId: 'tenant-a',
+      targetProduct: 'nova-comercial',
       targetRoles: ['tenant-owner'],
       targetPermissions: ['users:delete'],
     }), false);
