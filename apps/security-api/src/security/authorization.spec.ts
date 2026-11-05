@@ -1,3 +1,5 @@
+import assert from 'node:assert/strict';
+import { describe, it } from 'node:test';
 import { evaluateAccess, AccessContext, AccessPolicy } from './authorization';
 
 describe('evaluateAccess', () => {
@@ -15,18 +17,18 @@ describe('evaluateAccess', () => {
   };
 
   it('allows an explicitly permitted action in the matching tenant and product', () => {
-    expect(evaluateAccess(context, policy)).toBe(true);
+    assert.equal(evaluateAccess(context, policy), true);
   });
 
   it('denies access when the active tenant does not match the resource tenant', () => {
-    expect(evaluateAccess({ ...context, tenantId: 'tenant-b' }, policy)).toBe(false);
+    assert.equal(evaluateAccess({ ...context, tenantId: 'tenant-b' }, policy), false);
   });
 
   it('denies access when the permission is absent', () => {
-    expect(evaluateAccess({ ...context, permissions: [] }, policy)).toBe(false);
+    assert.equal(evaluateAccess({ ...context, permissions: [] }, policy), false);
   });
 
   it('denies access when the policy is disabled', () => {
-    expect(evaluateAccess(context, { ...policy, enabled: false })).toBe(false);
+    assert.equal(evaluateAccess(context, { ...policy, enabled: false }), false);
   });
 });

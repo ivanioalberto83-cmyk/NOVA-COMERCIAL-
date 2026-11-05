@@ -12,12 +12,16 @@ on:
       - 'apps/security-api/**'
       - '.github/workflows/nova-security-api.yml'
 
-permissions:
-  contents: write
+concurrency:
+  group: nova-security-api-${{ github.ref }}
+  cancel-in-progress: false
 
 jobs:
   validate:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: write
     defaults:
       run:
         working-directory: apps/security-api
@@ -28,6 +32,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+          cache: npm
+          cache-dependency-path: apps/security-api/package-lock.json
       - name: Generate and commit reproducible dependency lockfile
         if: github.event_name == 'push' && github.ref == 'refs/heads/feature/nova-security-foundation-design'
         run: |
@@ -36,7 +42,7 @@ jobs:
           if ! git diff --cached --quiet; then
             git config user.name "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git commit -m "build(security): refresh patched dependency lockfile"
+            git commit -m "build(security): refresh reproducible dependency lockfile"
             git push origin HEAD:feature/nova-security-foundation-design
           else
             echo "package-lock.json already up to date"
@@ -46,21 +52,26 @@ jobs:
       - name: Generate dependency audit report
         if: always()
         run: npm audit --json > npm-audit.json || true
-      - name: Upload dependency audit report
+      - name: Generate CycloneDX software bill of materials
+        if: always()
+        run: npm sbom --sbom-format cyclonedx > sbom.cdx.json
+      - name: Upload dependency audit and SBOM
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: nova-security-dependency-audit
-          path: apps/security-api/npm-audit.json
+          name: nova-security-supply-chain-evidence
+          path: |
+            apps/security-api/npm-audit.json
+            apps/security-api/sbom.cdx.json
           if-no-files-found: warn
-          retention-days: 14
+          retention-days: 30
       - name: Enforce dependency security policy
-        run: npm audit --audit-level=moderate
+        run: npm audit --audit-level=low
       - name: Lint
         run: npm run lint
       - name: End-to-end tests
         run: npm run test:e2e
       - name: Unit tests
-        run: npm run test -- --passWithNoTests
+        run: npm run test
       - name: Build
         run: npm run build

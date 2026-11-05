@@ -1,3 +1,5 @@
+import assert from 'node:assert/strict';
+import { after, before, describe, it } from 'node:test';
 import { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import request from 'supertest';
@@ -6,7 +8,7 @@ import { AppModule } from '../src/app.module';
 describe('GET /health', () => {
   let app: INestApplication;
 
-  beforeAll(async () => {
+  before(async () => {
     const moduleRef = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
@@ -15,17 +17,18 @@ describe('GET /health', () => {
     await app.init();
   });
 
-  afterAll(async () => {
+  after(async () => {
     await app?.close();
   });
 
   it('returns a non-sensitive readiness response', async () => {
-    await request(app.getHttpServer())
+    const response = await request(app.getHttpServer())
       .get('/health')
-      .expect(200)
-      .expect({
-        status: 'ok',
-        service: 'nova-security-api',
-      });
+      .expect(200);
+
+    assert.deepEqual(response.body, {
+      status: 'ok',
+      service: 'nova-security-api',
+    });
   });
 });

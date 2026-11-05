@@ -7,9 +7,9 @@
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
     "start": "node dist/main.js",
-    "start:dev": "ts-node-dev --respawn --transpile-only src/main.ts",
-    "test": "jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json --runInBand",
+    "start:dev": "tsx watch src/main.ts",
+    "test": "tsx --test src/security/authorization.spec.ts",
+    "test:e2e": "tsx --test test/health.e2e-spec.ts",
     "lint": "tsc --noEmit -p tsconfig.json"
   },
   "engines": {
@@ -24,14 +24,10 @@
   },
   "devDependencies": {
     "@nestjs/testing": "^11.1.18",
-    "@types/jest": "^29.5.14",
     "@types/node": "^22.10.2",
     "@types/supertest": "^6.0.2",
-    "jest": "^29.7.0",
     "supertest": "^7.0.0",
-    "ts-jest": "^29.2.5",
-    "ts-node": "^10.9.2",
-    "ts-node-dev": "^2.0.0",
+    "tsx": "^4.20.6",
     "typescript": "^5.7.2"
   },
   "overrides": {
