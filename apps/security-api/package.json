@@ -14,7 +14,7 @@
     "db:generate": "prisma generate",
     "db:validate": "prisma validate",
     "db:migrate:deploy": "prisma migrate deploy",
-    "test:integration": "tsx --test test/identity.persistence.spec.ts",
+    "test:integration": "tsx --test test/disposable-database.spec.ts test/identity.persistence.spec.ts",
     "test:auth": "tsx --test test/password.service.spec.ts test/auth-token.service.spec.ts test/auth-session.guard.spec.ts",
     "test:auth:integration": "tsx --test test/auth.integration.spec.ts"
   },
