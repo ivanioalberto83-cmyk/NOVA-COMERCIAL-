@@ -1,3 +1,4 @@
+import 'reflect-metadata';
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { ExecutionContext, UnauthorizedException } from '@nestjs/common';
@@ -21,18 +22,18 @@ describe('AuthSessionGuard', () => {
     await assert.rejects(guard.canActivate(context), UnauthorizedException);
   });
   it('rejects a token whose persisted session is inactive', async () => {
-    const guard = new AuthSessionGuard(new Reflector(), { authorizeAccessToken: async () => null } as never);
+    const guard = new AuthSessionGuard({ authorizeAccessToken: async () => null } as never);
     const { context } = makeContext({ authorization: 'Bearer token' });
     await assert.rejects(guard.canActivate(context), UnauthorizedException);
   });
   it('attaches verified identity and tenant claims to the request', async () => {
-    const guard = new AuthSessionGuard(new Reflector(), { authorizeAccessToken: async () => claims } as never);
+    const guard = new AuthSessionGuard({ authorizeAccessToken: async () => claims } as never);
     const { context, request } = makeContext({ authorization: 'Bearer token' });
     assert.equal(await guard.canActivate(context), true);
     assert.deepEqual(request.auth, claims);
   });
   it('allows explicitly public routes to bypass authentication', async () => {
-    const guard = new AuthSessionGuard(new Reflector(), { authorizeAccessToken: async () => null } as never);
+    const guard = new AuthSessionGuard({ authorizeAccessToken: async () => null } as never);
     const { context } = makeContext({}, true);
     assert.equal(await guard.canActivate(context), true);
   });
