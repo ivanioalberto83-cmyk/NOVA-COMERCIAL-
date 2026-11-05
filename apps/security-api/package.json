@@ -15,7 +15,7 @@
     "db:validate": "prisma validate",
     "db:migrate:deploy": "prisma migrate deploy",
     "test:integration": "tsx --test test/identity.persistence.spec.ts",
-    "test:auth": "tsx --test test/password.service.spec.ts"
+    "test:auth": "tsx --test test/password.service.spec.ts test/auth-token.service.spec.ts"
   },
   "engines": {
     "node": ">=20"
