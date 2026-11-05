@@ -68,6 +68,8 @@ export function authorize(request: AuthorizationRequest | null | undefined): Aut
 
 export interface PermissionGrantRequest {
   actor: SecurityPrincipal | null | undefined;
+  targetTenantId: string;
+  targetProduct: string;
   targetRoles: readonly string[];
   targetPermissions: readonly string[];
 }
@@ -77,12 +79,17 @@ export function canGrantAccess(request: PermissionGrantRequest | null | undefine
   if (!request || !request.actor ||
       !nonBlank(request.actor.subjectId) ||
       !nonBlank(request.actor.tenantId) ||
+      !nonBlank(request.actor.product) ||
+      !nonBlank(request.targetTenantId) ||
+      !nonBlank(request.targetProduct) ||
       !Array.isArray(request.actor.grantableRoles) ||
       !Array.isArray(request.actor.grantablePermissions) ||
       !Array.isArray(request.targetRoles) ||
       !Array.isArray(request.targetPermissions)) {
     return false;
   }
+  if (request.actor.tenantId !== request.targetTenantId ||
+      request.actor.product !== request.targetProduct) return false;
   if (request.targetRoles.length === 0 && request.targetPermissions.length === 0) return false;
   return request.targetRoles.every(role =>
     nonBlank(role) && request.actor!.grantableRoles.includes(role)) &&
