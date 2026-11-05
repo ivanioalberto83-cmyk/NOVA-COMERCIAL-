@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 360" role="img" aria-labelledby="title desc">
+<title id="title">UNIVERSO NOVA — Ecossistema Digital</title>
+<desc id="desc">Símbolo azul em forma de N envolvido por uma órbita dourada, acompanhado do nome UNIVERSO NOVA.</desc>
+<defs>
+ <linearGradient id="blue" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4F91BD"/><stop offset="1" stop-color="#183B60"/></linearGradient>
+ <linearGradient id="gold" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#D4A65D"/><stop offset="1" stop-color="#A97936"/></linearGradient>
+</defs>
+<g transform="translate(28 24)">
+ <path d="M28 252V55Q28 28 55 28H91Q111 28 124 47L237 199V28H306V253Q306 280 279 280H246Q226 280 212 261L97 108V280H55Q28 280 28 252Z" fill="url(#blue)"/>
+ <path d="M8 208C64 294 248 281 329 143C354 101 343 58 308 35" fill="none" stroke="url(#gold)" stroke-width="13" stroke-linecap="round"/>
+ <circle cx="308" cy="34" r="15" fill="#D4A65D"/>
+</g>
+<path d="M380 42V316" stroke="#DCE3E7" stroke-width="2"/>
+<g fill="#244766" font-family="Inter,Segoe UI,Arial,sans-serif">
+ <text x="430" y="125" font-size="66" font-weight="500" letter-spacing="15">UNIVERSO</text>
+ <text x="426" y="225" font-size="112" font-weight="800" letter-spacing="4">NOVA</text>
+ <text x="432" y="278" font-size="25" font-weight="500" letter-spacing="8">ECOSSISTEMA DIGITAL</text>
+ <text x="432" y="326" font-size="21" font-style="italic" letter-spacing="2" fill="#527493">Inovar  •  Integrar  •  Crescer</text>
+</g>
+<path d="M1027 204l26-45 26 45" fill="none" stroke="url(#gold)" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
