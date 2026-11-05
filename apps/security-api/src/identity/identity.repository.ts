@@ -77,6 +77,41 @@ export class IdentityRepository {
     });
   }
 
+
+  async findActiveSession(input: {
+    sessionId: string;
+    membershipId: string;
+    userId: string;
+    organizationId: string;
+    productCode: string;
+    now?: Date;
+  }) {
+    return this.prisma.securitySession.findFirst({
+      where: {
+        id: input.sessionId,
+        membershipId: input.membershipId,
+        organizationId: input.organizationId,
+        revokedAt: null,
+        expiresAt: { gt: input.now ?? new Date() },
+        membership: {
+          status: MembershipStatus.ACTIVE,
+          userId: input.userId,
+          user: { status: 'ACTIVE' },
+          organization: { status: 'ACTIVE' },
+          product: { code: input.productCode, status: 'ACTIVE' },
+        },
+      },
+      select: {
+        id: true,
+        membershipId: true,
+        organizationId: true,
+        productId: true,
+        expiresAt: true,
+        revokedAt: true,
+      },
+    });
+  }
+
   async findRefreshSessionByHash(refreshTokenHash: string) {
     return this.prisma.securitySession.findUnique({
       where: { refreshTokenHash },
