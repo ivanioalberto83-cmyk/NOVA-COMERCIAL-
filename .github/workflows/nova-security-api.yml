@@ -36,6 +36,7 @@ jobs:
           --health-retries 20
     env:
       DATABASE_URL: postgresql://nova_security_test:nova_security_test@localhost:5432/nova_security_test?schema=public
+      NOVA_ALLOW_DESTRUCTIVE_TEST_DATABASE: 'true'
     permissions:
       contents: write
     defaults:
