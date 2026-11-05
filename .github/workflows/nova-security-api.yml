@@ -55,7 +55,7 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
       - name: Enforce dependency security policy
-        run: npm audit --audit-level=low
+        run: npm audit --audit-level=moderate
       - name: Lint
         run: npm run lint
       - name: End-to-end tests
