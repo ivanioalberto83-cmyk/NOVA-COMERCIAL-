@@ -101,5 +101,7 @@ jobs:
         run: npm run test:auth
       - name: PostgreSQL identity and tenant-isolation integration tests
         run: npm run test:integration
+      - name: Authentication and refresh-token integration tests
+        run: npm run test:auth:integration
       - name: Build
         run: npm run build
