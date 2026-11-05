@@ -8,7 +8,7 @@
     "build": "tsc -p tsconfig.build.json",
     "start": "node dist/main.js",
     "start:dev": "tsx watch src/main.ts",
-    "test": "tsx --test src/security/authorization.spec.ts",
+    "test": "tsx --test src/security/*.spec.ts",
     "test:e2e": "tsx --test test/health.e2e-spec.ts",
     "lint": "tsc --noEmit -p tsconfig.json"
   },
