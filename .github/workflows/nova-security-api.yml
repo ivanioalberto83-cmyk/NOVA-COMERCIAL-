@@ -95,6 +95,8 @@ jobs:
         run: npm run test:e2e
       - name: Unit tests
         run: npm run test
+      - name: Authentication unit tests
+        run: npm run test:auth
       - name: PostgreSQL identity and tenant-isolation integration tests
         run: npm run test:integration
       - name: Build
