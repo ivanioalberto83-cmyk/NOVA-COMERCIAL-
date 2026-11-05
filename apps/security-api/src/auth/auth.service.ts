@@ -80,6 +80,20 @@ export class AuthService {
     );
   }
 
+
+  async authorizeAccessToken(token: string) {
+    const claims = this.tokens.verifyAccessToken(token);
+    if (!claims) return null;
+    const session = await this.identity.findActiveSession({
+      sessionId: claims.sid,
+      membershipId: claims.membershipId,
+      userId: claims.sub,
+      organizationId: claims.tenantId,
+      productCode: claims.product,
+    });
+    return session ? claims : null;
+  }
+
   async logout(refreshToken: string): Promise<{ revoked: boolean }> {
     if (typeof refreshToken !== 'string' || refreshToken.length < 40 || refreshToken.length > 200) {
       return { revoked: false };
