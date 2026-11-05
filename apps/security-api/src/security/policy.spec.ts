@@ -67,6 +67,8 @@ describe('permission delegation', () => {
   it('allows only explicitly grantable roles and permissions', () => {
     assert.equal(canGrantAccess({
       actor: principal,
+      targetTenantId: 'tenant-a',
+      targetProduct: 'nova-comercial',
       targetRoles: ['finance-reader'],
       targetPermissions: ['invoices:read'],
     }), true);
@@ -80,12 +82,29 @@ describe('permission delegation', () => {
     }), false);
   });
 
-  it('rejects empty or malformed grants', () => {
+  it('blocks delegation to a different tenant or product', () => {
     assert.equal(canGrantAccess({
-      actor: principal, targetRoles: [], targetPermissions: [],
+      actor: principal,
+      targetTenantId: 'tenant-b',
+      targetProduct: 'nova-comercial',
+      targetRoles: ['finance-reader'],
+      targetPermissions: ['invoices:read'],
     }), false);
     assert.equal(canGrantAccess({
-      actor: null, targetRoles: ['finance-reader'], targetPermissions: [],
+      actor: principal,
+      targetTenantId: 'tenant-a',
+      targetProduct: 'nova-taxi',
+      targetRoles: ['finance-reader'],
+      targetPermissions: ['invoices:read'],
+    }), false);
+  });
+
+  it('rejects empty or malformed grants', () => {
+    assert.equal(canGrantAccess({
+      actor: principal, targetTenantId: 'tenant-a', targetProduct: 'nova-comercial', targetRoles: [], targetPermissions: [],
+    }), false);
+    assert.equal(canGrantAccess({
+      actor: null, targetTenantId: 'tenant-a', targetProduct: 'nova-comercial', targetRoles: ['finance-reader'], targetPermissions: [],
     }), false);
   });
 });
