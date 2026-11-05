@@ -94,6 +94,34 @@ describe('authentication and refresh-token lifecycle', { skip: !enabled }, () =>
     assert.ok(tokens.verifyAccessToken(second.accessToken));
   });
 
+  it('authorizes access only while the exact session, membership, user, tenant and product remain active', async () => {
+    const loggedIn = await auth.login({
+      email: 'auth-test@example.test', password, organizationId,
+      productCode: 'nova-comercial-auth-test',
+    });
+    const claims = tokens.verifyAccessToken(loggedIn.accessToken);
+    assert.ok(claims);
+    const active = await identity.findActiveSession({
+      sessionId: claims.sid,
+      membershipId: claims.membershipId,
+      userId: claims.sub,
+      organizationId: claims.tenantId,
+      productCode: claims.product,
+    });
+    assert.ok(active);
+    assert.equal(active.id, claims.sid);
+
+    await auth.logout(loggedIn.refreshToken);
+    const revoked = await identity.findActiveSession({
+      sessionId: claims.sid,
+      membershipId: claims.membershipId,
+      userId: claims.sub,
+      organizationId: claims.tenantId,
+      productCode: claims.product,
+    });
+    assert.equal(revoked, null);
+  });
+
   it('revokes the current refresh session on logout', async () => {
     const loggedIn = await auth.login({
       email: 'auth-test@example.test', password, organizationId,
