@@ -2,8 +2,12 @@ import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import { IdentityRepository } from '../src/identity/identity.repository';
 import { PrismaService } from '../src/persistence/prisma.service';
+import { assertDisposableDatabaseUrl } from './disposable-database';
 
 const enabled = Boolean(process.env.DATABASE_URL);
+
+// Validate before registering hooks: a failed guard must never reach cleanup hooks.
+if (enabled) assertDisposableDatabaseUrl(process.env);
 
 describe('identity persistence and tenant boundaries', { skip: !enabled }, () => {
   const prisma = new PrismaService();
