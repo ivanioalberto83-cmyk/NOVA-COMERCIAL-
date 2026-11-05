@@ -1,7 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { ExecutionContext, UnauthorizedException } from '@nestjs/common';
-import { Reflector } from '@nestjs/core';
 import { AuthSessionGuard } from '../src/auth/auth-session.guard';
 import { IS_PUBLIC_KEY } from '../src/auth/public.decorator';
 
@@ -17,7 +16,7 @@ function makeContext(headers: Record<string, string | string[] | undefined>, pub
 
 describe('AuthSessionGuard', () => {
   it('rejects requests without a bearer token', async () => {
-    const guard = new AuthSessionGuard(new Reflector(), { authorizeAccessToken: async () => claims } as never);
+    const guard = new AuthSessionGuard({ authorizeAccessToken: async () => claims } as never);
     const { context } = makeContext({});
     await assert.rejects(guard.canActivate(context), UnauthorizedException);
   });
