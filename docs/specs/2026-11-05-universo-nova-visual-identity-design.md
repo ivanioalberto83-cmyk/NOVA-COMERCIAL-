@@ -61,7 +61,7 @@ Tokens escuros comuns às duas páginas:
 | brand-contrast | #17212B |
 | brand-accent | #D9B77A |
 
-O dourado #B58B50 é reservado a acentos gráficos e não a texto corrido sobre o fundo claro. Os textos auxiliares usam #64717D para cumprir o contraste mínimo WCAG 2.1 AA no fundo #F5F6F4.
+O dourado #B58B50 é reservado a acentos gráficos e não a texto corrido sobre superfícies claras ou fundos de marca. Em blocos CTA, os rótulos usam a cor de contraste do próprio bloco; o azul secundário é usado nos pequenos textos sobre superfícies claras. Os textos auxiliares usam #64717D para cumprir o contraste mínimo WCAG 2.1 AA no fundo #F5F6F4.
 
 ## 6. Logótipo
 
