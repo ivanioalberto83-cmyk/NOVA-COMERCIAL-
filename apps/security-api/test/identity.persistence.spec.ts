@@ -38,8 +38,8 @@ describe('identity persistence and tenant boundaries', { skip: !enabled }, () =>
     product = await prisma.product.create({
       data: { code: 'nova-comercial-test', name: 'NOVA COMERCIAL test' }, select: { id: true },
     });
-    userA = await prisma.user.create({ data: {}, select: { id: true } });
-    userB = await prisma.user.create({ data: {}, select: { id: true } });
+    userA = await prisma.user.create({ data: { email: 'user-a@example.test' }, select: { id: true } });
+    userB = await prisma.user.create({ data: { email: 'user-b@example.test' }, select: { id: true } });
     membershipA = await prisma.membership.create({
       data: {
         userId: userA.id, organizationId: organizationA.id,
