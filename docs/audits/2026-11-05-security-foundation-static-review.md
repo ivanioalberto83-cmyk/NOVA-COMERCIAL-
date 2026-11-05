@@ -70,11 +70,22 @@ Para a primeira integração com Supabase, recomenda-se manter o schema `nova_co
 5. Fazer revisão de segurança e produzir evidências do workflow.
 6. Só depois desenhar a migração de integração com `nova_comercial`, sem tocar em `public` escolar.
 
-## 6. Limitações desta revisão
+## 6. Actualização posterior — salvaguarda dos testes destrutivos
+
+Após a revisão estática, foi acrescentada uma salvaguarda específica para `test/identity.persistence.spec.ts`:
+
+- `test/disposable-database.ts` valida a opção explícita `NOVA_ALLOW_DESTRUCTIVE_TEST_DATABASE=true`, protocolo PostgreSQL, host local e correspondência exacta entre nome de base e porta (`nova_security_local:54329` ou `nova_security_test:5432`).
+- A validação ocorre antes do registo dos hooks de integração, impedindo que um hook de limpeza seja executado quando a configuração não é aprovada.
+- Foram adicionados testes unitários para os dois destinos permitidos, ausência de opção, host remoto, nome não aprovado e URL inválido.
+- O script `test:integration`, o `.env.example`, o workflow de CI e o README foram actualizados para usar/documentar a salvaguarda.
+
+**Limite de verificação:** as alterações foram gravadas na branch `feature/nova-security-foundation-design`, mas não foi possível obter nesta sessão uma saída de execução do GitHub Actions nem executar localmente `npm ci`, testes, lint ou build. A existência dos testes não prova que passaram. O teste red/green do ciclo TDD também não foi observado nesta sessão.
+
+## 7. Limitações desta revisão
 
 - Revisão estática dos ficheiros consultados; não foi executado `npm ci`, lint, build, testes ou migrações.
 - Não foi consultada uma corrida recente do GitHub Actions nesta revisão.
 - Não foi feita análise dinâmica, teste de penetração ou auditoria independente.
 - Não foram alterados ficheiros de aplicação nem bases de dados.
 
-**Estado:** relatório documental de revisão; sem alterações de código ou de infraestrutura.
+**Estado actualizado:** revisão estática com uma salvaguarda de segurança para a base de dados de testes registada na branch; execução de testes ainda não comprovada. Não foram alterados Supabase, dados escolares, `public`, credenciais ou produção.
