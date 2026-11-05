@@ -196,7 +196,7 @@ docs/
   security/
 ```
 
-O portal institucional existente deve permanecer preservado. Não migrar nem substituir `index.html) nesta primeira entrega.
+O portal institucional existente deve permanecer preservado. Não migrar nem substituir `index.html` nesta primeira entrega.
 
 ## 12. Estratégia de testes e critérios de aceitação
 
