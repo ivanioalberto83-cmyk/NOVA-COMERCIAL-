@@ -1,0 +1,164 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          String       @id @default(uuid()) @db.Uuid
+  status      UserStatus   @default(ACTIVE)
+  createdAt   DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime     @updatedAt @map("updated_at") @db.Timestamptz(6)
+  credential  Credential?
+  memberships Membership[]
+
+  @@map("security_users")
+}
+
+model Credential {
+  userId           String   @id @map("user_id") @db.Uuid
+  passwordHash     String   @map("password_hash") @db.VarChar(255)
+  passwordChangedAt DateTime @default(now()) @map("password_changed_at") @db.Timestamptz(6)
+  createdAt        DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt        DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("security_credentials")
+}
+
+model Organization {
+  id          String       @id @default(uuid()) @db.Uuid
+  name        String       @db.VarChar(180)
+  slug        String       @unique @db.VarChar(100)
+  status      OrgStatus    @default(ACTIVE)
+  createdAt   DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime     @updatedAt @map("updated_at") @db.Timestamptz(6)
+  memberships Membership[]
+  roles       Role[]
+
+  @@map("security_organizations")
+}
+
+model Product {
+  id          String       @id @default(uuid()) @db.Uuid
+  code        String       @unique @db.VarChar(80)
+  name        String       @db.VarChar(180)
+  status      ProductStatus @default(ACTIVE)
+  createdAt   DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
+  memberships Membership[]
+  roles       Role[]
+
+  @@map("security_products")
+}
+
+model Membership {
+  id             String             @id @default(uuid()) @db.Uuid
+  userId         String             @map("user_id") @db.Uuid
+  organizationId String             @map("organization_id") @db.Uuid
+  productId      String             @map("product_id") @db.Uuid
+  status         MembershipStatus   @default(PENDING)
+  createdAt      DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime           @updatedAt @map("updated_at") @db.Timestamptz(6)
+  user           User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organization   Organization       @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  product        Product            @relation(fields: [productId], references: [id], onDelete: Restrict)
+  roles          MembershipRole[]
+  sessions       SecuritySession[]
+
+  @@unique([userId, organizationId, productId])
+  @@unique([id, organizationId, productId])
+  @@index([organizationId, productId, status])
+  @@map("security_memberships")
+}
+
+model Role {
+  id             String             @id @default(uuid()) @db.Uuid
+  organizationId String             @map("organization_id") @db.Uuid
+  productId      String             @map("product_id") @db.Uuid
+  code           String             @db.VarChar(100)
+  name           String             @db.VarChar(180)
+  createdAt      DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
+  organization   Organization       @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  product        Product            @relation(fields: [productId], references: [id], onDelete: Restrict)
+  permissions    RolePermission[]
+  memberships    MembershipRole[]
+
+  @@unique([organizationId, productId, code])
+  @@unique([id, organizationId, productId])
+  @@map("security_roles")
+}
+
+model Permission {
+  id          String           @id @default(uuid()) @db.Uuid
+  code        String           @unique @db.VarChar(140)
+  description String?          @db.VarChar(500)
+  createdAt   DateTime         @default(now()) @map("created_at") @db.Timestamptz(6)
+  roles       RolePermission[]
+
+  @@map("security_permissions")
+}
+
+model RolePermission {
+  roleId       String     @map("role_id") @db.Uuid
+  permissionId String     @map("permission_id") @db.Uuid
+  role         Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@id([roleId, permissionId])
+  @@map("security_role_permissions")
+}
+
+model MembershipRole {
+  membershipId  String     @map("membership_id") @db.Uuid
+  roleId        String     @map("role_id") @db.Uuid
+  organizationId String    @map("organization_id") @db.Uuid
+  productId     String     @map("product_id") @db.Uuid
+  membership    Membership @relation(fields: [membershipId, organizationId, productId], references: [id, organizationId, productId], onDelete: Cascade)
+  role          Role       @relation(fields: [roleId, organizationId, productId], references: [id, organizationId, productId], onDelete: Cascade)
+
+  @@id([membershipId, roleId])
+  @@map("security_membership_roles")
+}
+
+model SecuritySession {
+  id               String       @id @default(uuid()) @db.Uuid
+  membershipId     String       @map("membership_id") @db.Uuid
+  organizationId   String       @map("organization_id") @db.Uuid
+  productId        String       @map("product_id") @db.Uuid
+  refreshTokenHash String       @unique @map("refresh_token_hash") @db.VarChar(255)
+  expiresAt        DateTime     @map("expires_at") @db.Timestamptz(6)
+  revokedAt        DateTime?    @map("revoked_at") @db.Timestamptz(6)
+  createdAt        DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
+  lastUsedAt       DateTime?    @map("last_used_at") @db.Timestamptz(6)
+  membership       Membership   @relation(fields: [membershipId, organizationId, productId], references: [id, organizationId, productId], onDelete: Cascade)
+
+  @@index([membershipId, expiresAt, revokedAt])
+  @@map("security_sessions")
+}
+
+enum UserStatus {
+  ACTIVE
+  SUSPENDED
+  DISABLED
+}
+
+enum OrgStatus {
+  ACTIVE
+  SUSPENDED
+  CLOSED
+}
+
+enum ProductStatus {
+  ACTIVE
+  DISABLED
+}
+
+enum MembershipStatus {
+  PENDING
+  ACTIVE
+  SUSPENDED
+  REVOKED
+}
