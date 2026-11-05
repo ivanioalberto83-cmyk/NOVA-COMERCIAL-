@@ -28,7 +28,7 @@ export function assertDisposableDatabaseUrl(env: NodeJS.ProcessEnv): void {
     throw new Error('Destructive integration tests require a local disposable PostgreSQL host');
   }
 
-  const databaseName = decodeURIComponent(databaseUrl.pathname.replace(/^\\//, ''));
+  const databaseName = databaseUrl.pathname.slice(1);
   const expectedPort = approvedDatabases.get(databaseName);
   if (!expectedPort || Number(databaseUrl.port) !== expectedPort) {
     throw new Error('Destructive integration tests require an approved disposable database name and port');
