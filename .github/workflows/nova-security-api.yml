@@ -59,6 +59,8 @@ jobs:
             git config user.name "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
             git commit -m "build(security): refresh reproducible dependency lockfile"
+            git fetch origin feature/nova-security-foundation-design
+            git rebase origin/feature/nova-security-foundation-design
             git push origin HEAD:feature/nova-security-foundation-design
           else
             echo "package-lock.json already up to date"
