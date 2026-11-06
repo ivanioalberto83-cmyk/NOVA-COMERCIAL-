@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { evaluateAccess, AccessContext, AccessPolicy } from './authorization';
+import * as authorization from './authorization';
+import { AccessContext, AccessPolicy, evaluateAccess } from './authorization';
 
 describe('evaluateAccess', () => {
   const policy: AccessPolicy = {
@@ -30,5 +31,25 @@ describe('evaluateAccess', () => {
 
   it('denies access when the policy is disabled', () => {
     assert.equal(evaluateAccess(context, { ...policy, enabled: false }), false);
+  });
+});
+
+describe('hasRequiredPermissions', () => {
+  it('requires every explicitly requested permission', () => {
+    const check = (authorization as typeof authorization & {
+      hasRequiredPermissions?: (granted: readonly string[] | null, required: readonly string[] | null) => boolean;
+    }).hasRequiredPermissions;
+    assert.equal(check?.(['customers:read', 'customers:update'], ['customers:read']), true);
+    assert.equal(check?.(['customers:read'], ['customers:read', 'customers:update']), false);
+  });
+
+  it('fails closed when requirements or grants are missing or invalid', () => {
+    const check = (authorization as typeof authorization & {
+      hasRequiredPermissions?: (granted: readonly string[] | null, required: readonly string[] | null) => boolean;
+    }).hasRequiredPermissions;
+    assert.equal(check?.(['customers:read'], []), false);
+    assert.equal(check?.(null, ['customers:read']), false);
+    assert.equal(check?.(['customers:read'], null), false);
+    assert.equal(check?.(['customers:read'], [' ']), false);
   });
 });
