@@ -1,12 +1,13 @@
 import 'reflect-metadata';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
+import { validateEnvironment } from './config/environment';
 
 async function bootstrap(): Promise<void> {
+  const config = validateEnvironment(process.env);
   const app = await NestFactory.create(AppModule);
   app.enableShutdownHooks();
-  const port = Number(process.env.PORT ?? 3001);
-  await app.listen(port, '0.0.0.0');
+  await app.listen(config.port, '0.0.0.0');
 }
 
 void bootstrap();
