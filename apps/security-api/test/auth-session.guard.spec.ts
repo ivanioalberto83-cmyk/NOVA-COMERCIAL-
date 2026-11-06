@@ -5,7 +5,11 @@ import { ExecutionContext, UnauthorizedException } from '@nestjs/common';
 import { AuthSessionGuard } from '../src/auth/auth-session.guard';
 import { IS_PUBLIC_KEY } from '../src/auth/public.decorator';
 
-const claims = { sub: 'u1', sid: 's1', membershipId: 'm1', tenantId: 't1', product: 'nova-comercial', iat: 1800000000, exp: 1800000900, iss: 'nova-security-core' as const, aud: 'nova-products' as const };
+const claims = {
+  sub: 'u1', sid: 's1', membershipId: 'm1', tenantId: 't1', product: 'nova-comercial',
+  iat: 1800000000, exp: 1800000900, iss: 'nova-security-core' as const,
+  aud: 'nova-products' as const, roles: ['manager'], permissions: ['customers:read'],
+};
 function makeContext(headers: Record<string, string | string[] | undefined>, publicRoute = false) {
   const handler = function route() {};
   class TestController {}

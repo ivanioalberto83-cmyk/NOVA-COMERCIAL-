@@ -4,9 +4,14 @@ import { AuthService } from './auth.service';
 import { IS_PUBLIC_KEY } from './public.decorator';
 import { AccessTokenClaims } from './auth-token.service';
 
+type AuthenticatedPrincipal = AccessTokenClaims & {
+  roles: string[];
+  permissions: string[];
+};
+
 type AuthenticatedRequest = {
   headers: Record<string, string | string[] | undefined>;
-  auth?: AccessTokenClaims;
+  auth?: AuthenticatedPrincipal;
 };
 
 @Injectable()

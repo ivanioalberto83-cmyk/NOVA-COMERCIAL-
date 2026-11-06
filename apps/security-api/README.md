@@ -78,6 +78,8 @@ Os testes de integração exigem uma base PostgreSQL descartável configurada em
 - O guard valida a assinatura e validade do access token e confirma a sessão na base de dados.
 - A autorização confirma sessão não revogada e não expirada, utilizador activo, associação activa, empresa activa e produto activo.
 - Os claims verificados são anexados ao pedido como `request.auth`; os módulos devem usar estes claims e nunca valores de tenant enviados pelo cliente.
+- As permissões activas são carregadas das associações de papéis da membership em cada pedido autenticado, para que alterações de permissões tenham efeito sem depender de claims antigos.
+- Endpoints de negócio devem declarar permissões explícitas com `@RequirePermissions('area:action')`; o `AuthorizationGuard` global nega pedidos sem todas as permissões exigidas.
 - `GET /health` é explicitamente público e não expõe dados de identidade.
 - Para cada novo endpoint público é obrigatório usar `@Public()` de forma deliberada; por defeito, o acesso é protegido.
 

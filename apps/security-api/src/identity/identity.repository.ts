@@ -108,6 +108,22 @@ export class IdentityRepository {
         productId: true,
         expiresAt: true,
         revokedAt: true,
+        membership: {
+          select: {
+            roles: {
+              select: {
+                role: {
+                  select: {
+                    code: true,
+                    permissions: {
+                      select: { permission: { select: { code: true } } },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
       },
     });
   }

@@ -91,7 +91,14 @@ export class AuthService {
       organizationId: claims.tenantId,
       productCode: claims.product,
     });
-    return session ? claims : null;
+    if (!session) return null;
+    const roles = session.membership.roles.map(item => item.role.code);
+    const permissions = [...new Set(
+      session.membership.roles.flatMap(item =>
+        item.role.permissions.map(grant => grant.permission.code),
+      ),
+    )];
+    return { ...claims, roles, permissions };
   }
 
   async logout(refreshToken: string): Promise<{ revoked: boolean }> {
