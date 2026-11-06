@@ -5,6 +5,7 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+  schemas  = ["nova_core"]
 }
 
 model User {
@@ -17,19 +18,21 @@ model User {
   memberships Membership[]
 
   @@map("security_users")
+  @@schema("nova_core")
 }
 
 model Credential {
-  userId           String   @id @map("user_id") @db.Uuid
-  passwordHash     String   @map("password_hash") @db.VarChar(255)
-  failedLoginAttempts Int   @default(0) @map("failed_login_attempts")
-  lockedUntil       DateTime? @map("locked_until") @db.Timestamptz(6)
-  passwordChangedAt DateTime @default(now()) @map("password_changed_at") @db.Timestamptz(6)
-  createdAt        DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt        DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
-  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId              String   @id @map("user_id") @db.Uuid
+  passwordHash        String   @map("password_hash") @db.VarChar(255)
+  failedLoginAttempts Int      @default(0) @map("failed_login_attempts")
+  lockedUntil         DateTime? @map("locked_until") @db.Timestamptz(6)
+  passwordChangedAt   DateTime @default(now()) @map("password_changed_at") @db.Timestamptz(6)
+  createdAt           DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt           DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  user                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("security_credentials")
+  @@schema("nova_core")
 }
 
 model Organization {
@@ -43,6 +46,7 @@ model Organization {
   roles       Role[]
 
   @@map("security_organizations")
+  @@schema("nova_core")
 }
 
 model Product {
@@ -55,6 +59,7 @@ model Product {
   roles       Role[]
 
   @@map("security_products")
+  @@schema("nova_core")
 }
 
 model Membership {
@@ -75,6 +80,7 @@ model Membership {
   @@unique([id, organizationId, productId])
   @@index([organizationId, productId, status])
   @@map("security_memberships")
+  @@schema("nova_core")
 }
 
 model Role {
@@ -92,6 +98,7 @@ model Role {
   @@unique([organizationId, productId, code])
   @@unique([id, organizationId, productId])
   @@map("security_roles")
+  @@schema("nova_core")
 }
 
 model Permission {
@@ -102,6 +109,7 @@ model Permission {
   roles       RolePermission[]
 
   @@map("security_permissions")
+  @@schema("nova_core")
 }
 
 model RolePermission {
@@ -112,6 +120,7 @@ model RolePermission {
 
   @@id([roleId, permissionId])
   @@map("security_role_permissions")
+  @@schema("nova_core")
 }
 
 model MembershipRole {
@@ -124,6 +133,7 @@ model MembershipRole {
 
   @@id([membershipId, roleId])
   @@map("security_membership_roles")
+  @@schema("nova_core")
 }
 
 model SecuritySession {
@@ -140,23 +150,30 @@ model SecuritySession {
 
   @@index([membershipId, expiresAt, revokedAt])
   @@map("security_sessions")
+  @@schema("nova_core")
 }
 
 enum UserStatus {
   ACTIVE
   SUSPENDED
   DISABLED
+
+  @@schema("nova_core")
 }
 
 enum OrgStatus {
   ACTIVE
   SUSPENDED
   CLOSED
+
+  @@schema("nova_core")
 }
 
 enum ProductStatus {
   ACTIVE
   DISABLED
+
+  @@schema("nova_core")
 }
 
 enum MembershipStatus {
@@ -164,4 +181,6 @@ enum MembershipStatus {
   ACTIVE
   SUSPENDED
   REVOKED
+
+  @@schema("nova_core")
 }
