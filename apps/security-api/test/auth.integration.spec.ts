@@ -5,8 +5,12 @@ import { AuthTokenService } from '../src/auth/auth-token.service';
 import { IdentityRepository } from '../src/identity/identity.repository';
 import { PrismaService } from '../src/persistence/prisma.service';
 import { PasswordService } from '../src/auth/password.service';
+import { assertDisposableDatabaseUrl } from './disposable-database';
 
 const enabled = Boolean(process.env.DATABASE_URL);
+
+// This suite performs global deleteMany() cleanup. Reject unsafe targets before hooks exist.
+if (enabled) assertDisposableDatabaseUrl(process.env);
 
 describe('authentication and refresh-token lifecycle', { skip: !enabled }, () => {
   const prisma = new PrismaService();
