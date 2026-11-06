@@ -60,7 +60,8 @@ jobs:
         run: npm run db:validate
       - name: Create isolated NOVA CORE schema
         run: |
-          psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -c 'CREATE SCHEMA IF NOT EXISTS nova_core;'
+          DATABASE_URL_NO_QUERY="${DATABASE_URL%%\?*}"
+          psql "$DATABASE_URL_NO_QUERY" -v ON_ERROR_STOP=1 -c 'CREATE SCHEMA IF NOT EXISTS nova_core;'
       - name: Apply migrations to disposable PostgreSQL
         run: npm run db:migrate:deploy
       - name: Generate dependency audit report
