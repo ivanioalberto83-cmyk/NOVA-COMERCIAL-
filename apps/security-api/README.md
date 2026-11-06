@@ -7,6 +7,17 @@ Serviço modular inicial do NOVA SECURITY CORE, construído com NestJS, TypeScri
 - Node.js 20 ou superior
 - npm
 - Docker Compose (para PostgreSQL local descartável)
+- cliente PostgreSQL `psql` para preparar o schema local
+
+## Separação de schemas
+
+A API de identidade e segurança mapeia explicitamente todos os modelos Prisma para o schema PostgreSQL `nova_core`.
+
+- `public`: reservado aos dados legados dos produtos, incluindo a base NOVA TODDLE existente; esta API não cria nem altera tabelas neste schema.
+- `nova_core`: identidade, credenciais, organizações, produtos, memberships, papéis, permissões e sessões.
+- `nova_comercial`: reservado aos dados operacionais do ERP; não é gerido por estas migrações.
+
+O schema `nova_core` é privado. Não conceder acesso a `anon` ou `authenticated`; a ligação deve ser feita apenas por um backend com credenciais restritas. A configuração e concessão de privilégios em qualquer ambiente partilhado ou de produção requer uma revisão própria e autorização explícita.
 
 ## Ambiente local
 
@@ -18,6 +29,7 @@ docker compose up -d postgres
 npm ci
 npm run db:generate
 npm run db:validate
+psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -c 'CREATE SCHEMA IF NOT EXISTS nova_core;'
 npm run db:migrate:deploy
 npm run start:dev
 ```
@@ -44,7 +56,7 @@ npm run test:auth:integration
 npm run build
 ```
 
-Os testes de integração exigem uma base PostgreSQL descartável configurada em `DATABASE_URL` e a opção explícita `NOVA_ALLOW_DESTRUCTIVE_TEST_DATABASE=true`. O guard só aceita os alvos locais aprovados `nova_security_local:54329` (Docker Compose local) e `nova_security_test:5432` (PostgreSQL efémero do CI); rejeita hosts remotos, nomes de base diferentes e ausência da opção. O pipeline define a opção apenas no job que provisiona o PostgreSQL efémero. Nunca apontar estes testes a uma base partilhada ou de produção.
+Os testes de integração exigem uma base PostgreSQL descartável configurada em `DATABASE_URL` e a opção explícita `NOVA_ALLOW_DESTRUCTIVE_TEST_DATABASE=true`. O guard só aceita os alvos locais aprovados `nova_security_local:54329` (Docker Compose local) e `nova_security_test:5432` (PostgreSQL efémero do CI); rejeita hosts remotos, nomes de base diferentes e ausência da opção. Tanto os testes de persistência como os testes de autenticação validam o destino antes de registarem hooks de limpeza. O pipeline define a opção apenas no job que provisiona o PostgreSQL efémero. Nunca apontar estes testes a uma base partilhada ou de produção.
 
 ## Persistência e identidade já incluídas
 
@@ -57,6 +69,7 @@ Os testes de integração exigem uma base PostgreSQL descartável configurada em
 - Refresh token armazenado como hash; o valor em claro não é aceite nem persistido por este repositório.
 - Revogação de sessão limitada à associação proprietária.
 - Testes PostgreSQL para rejeitar consultas cruzadas e relações de sessão com tenant incompatível.
+- Teste de integração que confirma que as tabelas de identidade ficam em `nova_core`, não em `public`.
 
 ## Autenticação e controlo de sessões
 
@@ -73,6 +86,7 @@ Os testes de integração exigem uma base PostgreSQL descartável configurada em
 - Não existem ainda MFA, recuperação de conta, verificação de email ou rate limiting distribuído.
 - Não existe ainda RLS nem ligação às bases de dados dos produtos NOVA.
 - Não existe persistência de eventos de auditoria.
+- A camada de autenticação de sessão não substitui autorização RBAC/ABAC por endpoint; cada endpoint de negócio deverá aplicar uma política explícita antes de ser exposto.
 - A identidade/contexto usado na autorização tem de vir de uma autenticação confiável; nunca confiar em tenant ou permissões enviados livremente pelo cliente.
 - O PostgreSQL local é descartável. Não ligar este serviço a dados reais ou produção.
 
