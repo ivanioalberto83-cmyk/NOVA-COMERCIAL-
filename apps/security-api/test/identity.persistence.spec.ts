@@ -72,6 +72,16 @@ describe('identity persistence and tenant boundaries', { skip: !enabled }, () =>
     await prisma.$disconnect();
   });
 
+  it('keeps identity tables in nova_core and out of public', async () => {
+    const rows = await prisma.$queryRaw<Array<{ schema_name: string }>>`
+      SELECT table_schema AS schema_name
+      FROM information_schema.tables
+      WHERE table_name = 'security_users' AND table_type = 'BASE TABLE'
+      ORDER BY table_schema
+    `;
+    assert.deepEqual(rows.map(row => row.schema_name), ['nova_core']);
+  });
+
   it('returns only the requesting user membership in the requested tenant and product', async () => {
     const own = await repository.findActiveMembership(userA.id, organizationA.id, 'nova-comercial-test');
     const foreign = await repository.findActiveMembership(userA.id, organizationB.id, 'nova-comercial-test');
