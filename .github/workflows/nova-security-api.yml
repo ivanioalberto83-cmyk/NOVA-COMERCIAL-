@@ -16,6 +16,9 @@ concurrency:
   group: nova-security-api-${{ github.ref }}
   cancel-in-progress: false
 
+permissions:
+  contents: read
+
 jobs:
   validate:
     runs-on: ubuntu-latest
@@ -35,43 +38,29 @@ jobs:
           --health-timeout 3s
           --health-retries 20
     env:
-      DATABASE_URL: postgresql://nova_security_test:nova_security_test@localhost:5432/nova_security_test?schema=public
+      DATABASE_URL: postgresql://nova_security_test:nova_security_test@localhost:5432/nova_security_test?schema=nova_core
       NOVA_ALLOW_DESTRUCTIVE_TEST_DATABASE: 'true'
-    permissions:
-      contents: write
     defaults:
       run:
         working-directory: apps/security-api
     steps:
       - uses: actions/checkout@v4
         with:
-          persist-credentials: true
+          persist-credentials: false
       - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
           cache-dependency-path: apps/security-api/package-lock.json
-      - name: Generate and commit reproducible dependency lockfile
-        if: github.event_name == 'push' && github.ref == 'refs/heads/feature/nova-security-foundation-design'
-        run: |
-          npm install --package-lock-only --ignore-scripts
-          git add package-lock.json
-          if ! git diff --cached --quiet; then
-            git config user.name "github-actions[bot]"
-            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git commit -m "build(security): refresh reproducible dependency lockfile"
-            git fetch origin feature/nova-security-foundation-design
-            git rebase origin/feature/nova-security-foundation-design
-            git push origin HEAD:feature/nova-security-foundation-design
-          else
-            echo "package-lock.json already up to date"
-          fi
       - name: Install exact locked dependencies
         run: npm ci
       - name: Generate Prisma client
         run: npm run db:generate
       - name: Validate Prisma schema
         run: npm run db:validate
+      - name: Create isolated NOVA CORE schema
+        run: |
+          psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -c 'CREATE SCHEMA IF NOT EXISTS nova_core;'
       - name: Apply migrations to disposable PostgreSQL
         run: npm run db:migrate:deploy
       - name: Generate dependency audit report
