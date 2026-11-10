@@ -3,18 +3,23 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { ExecutionContext, ForbiddenException } from '@nestjs/common';
 import { AuthorizationGuard } from './authorization.guard';
+import { IS_PUBLIC_KEY } from '../auth/public.decorator';
 import { REQUIRED_PERMISSIONS_KEY } from './require-permissions.decorator';
 
 function makeContext(options: {
   required?: string[];
   classRequired?: string[];
   permissions?: string[];
+  publicRoute?: boolean;
+  publicController?: boolean;
 } = {}) {
   const handler = function route() {};
   class TestController {}
   if (options.required !== undefined) {
     Reflect.defineMetadata(REQUIRED_PERMISSIONS_KEY, options.required, handler);
   }
+  if (options.publicRoute) Reflect.defineMetadata(IS_PUBLIC_KEY, true, handler);
+  if (options.publicController) Reflect.defineMetadata(IS_PUBLIC_KEY, true, TestController);
   if (options.classRequired !== undefined) {
     Reflect.defineMetadata(REQUIRED_PERMISSIONS_KEY, options.classRequired, TestController);
   }
@@ -32,8 +37,13 @@ function makeContext(options: {
 describe('AuthorizationGuard', () => {
   const guard = new AuthorizationGuard();
 
-  it('allows routes without a permission declaration', () => {
-    assert.equal(guard.canActivate(makeContext()), true);
+  it('denies protected routes without an explicit permission declaration', () => {
+    assert.throws(() => guard.canActivate(makeContext()), ForbiddenException);
+  });
+
+  it('allows explicitly public routes without a permission declaration', () => {
+    assert.equal(guard.canActivate(makeContext({ publicRoute: true })), true);
+    assert.equal(guard.canActivate(makeContext({ publicController: true })), true);
   });
 
   it('allows a route only when all declared permissions are present', () => {
