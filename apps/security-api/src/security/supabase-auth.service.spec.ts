@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { SupabaseAuthService } from './supabase-auth.service';
+import { SupabaseAuthService } from '../auth/supabase-auth.service';
 
 const user = { id: 'd4a1c111-3c32-4a45-9a0b-31d9f4c9a111', email: 'user@example.test' };
 const membership = {
