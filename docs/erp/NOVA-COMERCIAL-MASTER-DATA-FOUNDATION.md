@@ -58,9 +58,16 @@ Included:
 - RLS enablement and explicit denial of direct client schema/table access.
 - A Node test contract and CI step to guard the migration structure.
 
+Implemented in the development branch (not deployed):
+- Backend CRUD endpoints for list/search/pagination, get-by-ID, create and partial update across all eleven resources.
+- Permission decorators for read/create/update; the 33 permission codes are defined in a separate idempotent seed, not yet applied or assigned to roles.
+- Organisation context is derived from the verified Supabase Auth principal; SQL queries filter by that organisation and parameterise values.
+- Create/update writes and append-only audit events share one database transaction.
+- Integration tests cover cross-organisation isolation, cross-tenant foreign keys, decimal precision, overlapping fiscal periods and audit records. CI execution must be checked before considering this validated.
+
 Not yet included:
 - Applying this migration to Supabase.
-- Backend CRUD endpoints or UI screens.
+- NOVA COMERCIAL UI screens.
 - Seed data for each company.
 - Authentication/RBAC integration for ERP routes.
 - Transactional modules (purchases, inventory movements, sales, cash/banks and accounting).
@@ -86,9 +93,9 @@ The contract test is a structural guard; it does not replace executing the SQL a
 ## 6. Next build sequence
 
 1. Complete and verify the master-data database increment.
-2. Implement organisation-scoped backend services and CRUD for branches, currencies, units, tax codes and payment methods.
-3. Implement customers and suppliers.
-4. Implement item catalogue and warehouses.
+2. Validate all eleven CRUD resources and the permission catalogue on disposable PostgreSQL.
+3. Review and apply the master-data migration and permission seed only after separate approval.
+4. Build the NOVA COMERCIAL UI for organisation settings and master data.
 5. Add company configuration and opening balances.
 6. Build purchasing and supplier invoice workflows.
 7. Build stock ledger and inventory operations.
