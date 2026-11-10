@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - feature/nova-security-foundation-design
+      - feature/nova-core-supabase-auth-alignment
     paths:
       - 'apps/security-api/**'
       - '.github/workflows/nova-security-api.yml'
