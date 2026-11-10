@@ -451,7 +451,7 @@ export class MasterDataService {
     }
     if (!startsOn || !endsOn || !['OPEN', 'CLOSING'].includes(status ?? 'OPEN')) return;
     await tx.$queryRawUnsafe(
-      'SELECT pg_advisory_xact_lock(hashtextextended($1, 0))',
+      'SELECT pg_advisory_xact_lock(hashtextextended($1, 0)) IS NULL AS locked',
       `fiscal_periods:${organizationId}`,
     );
     const overlaps = await tx.$queryRawUnsafe<Array<{ id: string }>>(
