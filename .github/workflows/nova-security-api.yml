@@ -5,6 +5,7 @@ on:
     branches:
       - feature/nova-security-foundation-design
       - feature/nova-core-supabase-auth-alignment
+      - feature/nova-comercial-master-data
     paths:
       - 'apps/security-api/**'
       - '.github/workflows/nova-security-api.yml'
@@ -95,5 +96,7 @@ jobs:
         run: npm run test:integration
       - name: Authentication and refresh-token integration tests
         run: npm run test:auth:integration
+      - name: NOVA COMERCIAL master-data contract tests
+        run: npm run test:erp:contract
       - name: Build
         run: npm run build
