@@ -8,179 +8,149 @@ datasource db {
   schemas  = ["nova_core"]
 }
 
-model User {
-  id          String       @id @default(uuid()) @db.Uuid
-  email       String       @unique @db.VarChar(320)
-  status      UserStatus   @default(ACTIVE)
-  createdAt   DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt   DateTime     @updatedAt @map("updated_at") @db.Timestamptz(6)
-  credential  Credential?
-  memberships Membership[]
-
-  @@map("security_users")
-  @@schema("nova_core")
-}
-
-model Credential {
-  userId              String   @id @map("user_id") @db.Uuid
-  passwordHash        String   @map("password_hash") @db.VarChar(255)
-  failedLoginAttempts Int      @default(0) @map("failed_login_attempts")
-  lockedUntil         DateTime? @map("locked_until") @db.Timestamptz(6)
-  passwordChangedAt   DateTime @default(now()) @map("password_changed_at") @db.Timestamptz(6)
-  createdAt           DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt           DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
-  user                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@map("security_credentials")
-  @@schema("nova_core")
-}
-
 model Organization {
-  id          String       @id @default(uuid()) @db.Uuid
-  name        String       @db.VarChar(180)
-  slug        String       @unique @db.VarChar(100)
-  status      OrgStatus    @default(ACTIVE)
-  createdAt   DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt   DateTime     @updatedAt @map("updated_at") @db.Timestamptz(6)
-  memberships Membership[]
-  roles       Role[]
+  id                 String               @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  legalName          String               @map("legal_name") @db.Text
+  displayName        String               @map("display_name") @db.Text
+  taxId              String?              @map("tax_id") @db.Text
+  countryCode        String               @default("AO") @map("country_code") @db.Char(2)
+  status             String               @default("pending") @db.Text
+  metadata           Json                 @default("{}") @db.JsonB
+  createdAt          DateTime             @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt          DateTime             @default(now()) @map("updated_at") @db.Timestamptz(6)
+  memberships        Membership[]
+  products           OrganizationProduct[]
+  auditEvents        AuditEvent[]
 
-  @@map("security_organizations")
+  @@unique([countryCode, taxId])
+  @@map("organizations")
   @@schema("nova_core")
 }
 
 model Product {
-  id          String       @id @default(uuid()) @db.Uuid
-  code        String       @unique @db.VarChar(80)
-  name        String       @db.VarChar(180)
-  status      ProductStatus @default(ACTIVE)
-  createdAt   DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
-  memberships Membership[]
-  roles       Role[]
+  id             String               @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  code           String               @unique @db.Text
+  name           String               @db.Text
+  description    String?              @db.Text
+  status         String               @default("active") @db.Text
+  createdAt      DateTime             @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime             @default(now()) @map("updated_at") @db.Timestamptz(6)
+  organizations  OrganizationProduct[]
+  auditEvents    AuditEvent[]
 
-  @@map("security_products")
+  @@map("products")
+  @@schema("nova_core")
+}
+
+model OrganizationProduct {
+  id             String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String       @map("organization_id") @db.Uuid
+  productId      String       @map("product_id") @db.Uuid
+  status         String       @default("pending") @db.Text
+  startsAt       DateTime?    @map("starts_at") @db.Timestamptz(6)
+  endsAt         DateTime?    @map("ends_at") @db.Timestamptz(6)
+  configuration  Json         @default("{}") @db.JsonB
+  createdAt      DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime     @default(now()) @map("updated_at") @db.Timestamptz(6)
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  product        Product      @relation(fields: [productId], references: [id], onDelete: Restrict)
+
+  @@unique([organizationId, productId])
+  @@index([organizationId, status])
+  @@map("organization_products")
   @@schema("nova_core")
 }
 
 model Membership {
-  id             String             @id @default(uuid()) @db.Uuid
-  userId         String             @map("user_id") @db.Uuid
-  organizationId String             @map("organization_id") @db.Uuid
-  productId      String             @map("product_id") @db.Uuid
-  status         MembershipStatus   @default(PENDING)
-  createdAt      DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt      DateTime           @updatedAt @map("updated_at") @db.Timestamptz(6)
-  user           User               @relation(fields: [userId], references: [id], onDelete: Cascade)
-  organization   Organization       @relation(fields: [organizationId], references: [id], onDelete: Restrict)
-  product        Product            @relation(fields: [productId], references: [id], onDelete: Restrict)
+  id             String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String           @map("organization_id") @db.Uuid
+  userId         String           @map("user_id") @db.Uuid
+  status         String           @default("invited") @db.Text
+  isPrimary      Boolean          @default(false) @map("is_primary")
+  createdAt      DateTime         @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime         @default(now()) @map("updated_at") @db.Timestamptz(6)
+  organization   Organization     @relation(fields: [organizationId], references: [id], onDelete: Restrict)
   roles          MembershipRole[]
-  sessions       SecuritySession[]
 
-  @@unique([userId, organizationId, productId])
-  @@unique([id, organizationId, productId])
-  @@index([organizationId, productId, status])
-  @@map("security_memberships")
+  @@unique([organizationId, userId])
+  @@index([userId, status])
+  @@map("memberships")
   @@schema("nova_core")
 }
 
 model Role {
-  id             String             @id @default(uuid()) @db.Uuid
-  organizationId String             @map("organization_id") @db.Uuid
-  productId      String             @map("product_id") @db.Uuid
-  code           String             @db.VarChar(100)
-  name           String             @db.VarChar(180)
-  createdAt      DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
-  organization   Organization       @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  product        Product            @relation(fields: [productId], references: [id], onDelete: Restrict)
-  permissions    RolePermission[]
-  memberships    MembershipRole[]
+  id              String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  code            String           @unique @db.Text
+  name            String           @db.Text
+  scope           String           @db.Text
+  isSystem        Boolean          @default(false) @map("is_system")
+  createdAt       DateTime         @default(now()) @map("created_at") @db.Timestamptz(6)
+  permissions     RolePermission[]
+  memberships     MembershipRole[]
 
-  @@unique([organizationId, productId, code])
-  @@unique([id, organizationId, productId])
-  @@map("security_roles")
+  @@map("roles")
   @@schema("nova_core")
 }
 
 model Permission {
-  id          String           @id @default(uuid()) @db.Uuid
-  code        String           @unique @db.VarChar(140)
-  description String?          @db.VarChar(500)
+  id          String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  code        String           @unique @db.Text
+  resource    String           @db.Text
+  action      String           @db.Text
+  description String?          @db.Text
   createdAt   DateTime         @default(now()) @map("created_at") @db.Timestamptz(6)
   roles       RolePermission[]
 
-  @@map("security_permissions")
+  @@unique([resource, action])
+  @@map("permissions")
   @@schema("nova_core")
 }
 
 model RolePermission {
   roleId       String     @map("role_id") @db.Uuid
   permissionId String     @map("permission_id") @db.Uuid
+  createdAt    DateTime   @default(now()) @map("created_at") @db.Timestamptz(6)
   role         Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
   permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
 
   @@id([roleId, permissionId])
-  @@map("security_role_permissions")
+  @@map("role_permissions")
   @@schema("nova_core")
 }
 
 model MembershipRole {
-  membershipId  String     @map("membership_id") @db.Uuid
-  roleId        String     @map("role_id") @db.Uuid
-  organizationId String    @map("organization_id") @db.Uuid
-  productId     String     @map("product_id") @db.Uuid
-  membership    Membership @relation(fields: [membershipId, organizationId, productId], references: [id, organizationId, productId], onDelete: Cascade)
-  role          Role       @relation(fields: [roleId, organizationId, productId], references: [id, organizationId, productId], onDelete: Cascade)
+  membershipId String      @map("membership_id") @db.Uuid
+  roleId       String      @map("role_id") @db.Uuid
+  grantedBy    String?     @map("granted_by") @db.Uuid
+  createdAt    DateTime    @default(now()) @map("created_at") @db.Timestamptz(6)
+  membership   Membership  @relation(fields: [membershipId], references: [id], onDelete: Cascade)
+  role         Role        @relation(fields: [roleId], references: [id], onDelete: Restrict)
 
   @@id([membershipId, roleId])
-  @@map("security_membership_roles")
+  @@map("membership_roles")
   @@schema("nova_core")
 }
 
-model SecuritySession {
-  id               String       @id @default(uuid()) @db.Uuid
-  membershipId     String       @map("membership_id") @db.Uuid
-  organizationId   String       @map("organization_id") @db.Uuid
-  productId        String       @map("product_id") @db.Uuid
-  refreshTokenHash String       @unique @map("refresh_token_hash") @db.VarChar(255)
-  expiresAt        DateTime     @map("expires_at") @db.Timestamptz(6)
-  revokedAt        DateTime?    @map("revoked_at") @db.Timestamptz(6)
-  createdAt        DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
-  lastUsedAt       DateTime?    @map("last_used_at") @db.Timestamptz(6)
-  membership       Membership   @relation(fields: [membershipId, organizationId, productId], references: [id, organizationId, productId], onDelete: Cascade)
+model AuditEvent {
+  id             BigInt        @id @default(autoincrement())
+  occurredAt     DateTime      @default(now()) @map("occurred_at") @db.Timestamptz(6)
+  actorUserId    String?       @map("actor_user_id") @db.Uuid
+  organizationId String?       @map("organization_id") @db.Uuid
+  productId      String?       @map("product_id") @db.Uuid
+  eventType      String        @map("event_type") @db.Text
+  action         String        @db.Text
+  resourceType   String?       @map("resource_type") @db.Text
+  resourceId     String?       @map("resource_id") @db.Text
+  outcome        String        @db.Text
+  severity       String        @default("info") @db.Text
+  correlationId  String?       @map("correlation_id") @db.Uuid
+  source         String        @default("application") @db.Text
+  metadata       Json          @default("{}") @db.JsonB
+  organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+  product        Product?      @relation(fields: [productId], references: [id], onDelete: SetNull)
 
-  @@index([membershipId, expiresAt, revokedAt])
-  @@map("security_sessions")
-  @@schema("nova_core")
-}
-
-enum UserStatus {
-  ACTIVE
-  SUSPENDED
-  DISABLED
-
-  @@schema("nova_core")
-}
-
-enum OrgStatus {
-  ACTIVE
-  SUSPENDED
-  CLOSED
-
-  @@schema("nova_core")
-}
-
-enum ProductStatus {
-  ACTIVE
-  DISABLED
-
-  @@schema("nova_core")
-}
-
-enum MembershipStatus {
-  PENDING
-  ACTIVE
-  SUSPENDED
-  REVOKED
-
+  @@index([organizationId, occurredAt])
+  @@index([actorUserId, occurredAt])
+  @@map("audit_events")
   @@schema("nova_core")
 }
