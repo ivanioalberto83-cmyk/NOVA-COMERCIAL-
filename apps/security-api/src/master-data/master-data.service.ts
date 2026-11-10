@@ -368,6 +368,10 @@ export class MasterDataService {
     }
 
     for (const [field, value] of Object.entries(body)) {
+      if (definition.required.includes(field) &&
+          (value === undefined || value === null || (typeof value === 'string' && value.trim().length === 0))) {
+        throw new BadRequestException(`Field ${field} cannot be empty`);
+      }
       if (value === null) {
         if (definition.required.includes(field)) {
           throw new BadRequestException(`Field ${field} cannot be null`);
