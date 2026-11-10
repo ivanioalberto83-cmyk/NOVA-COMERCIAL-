@@ -142,7 +142,16 @@ const DEFINITIONS: Record<MasterDataResource, ResourceDefinition> = {
   },
 };
 
-const SQL_CASTS: Record<FieldKind, string> = {\n  string: 'text',\n  uuid: 'uuid',\n  boolean: 'boolean',\n  integer: 'smallint',\n  decimal: 'numeric',\n  date: 'date',\n  datetime: 'timestamptz',\n};\n\nconst UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+const SQL_CASTS: Record<FieldKind, string> = {
+  string: 'text',
+  uuid: 'uuid',
+  boolean: 'boolean',
+  integer: 'smallint',
+  decimal: 'numeric',
+  date: 'date',
+  datetime: 'timestamptz',
+};
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const DECIMAL = /^-?\d{1,15}(?:\.\d{1,4})?$/;
 const DATE = /^\d{4}-\d{2}-\d{2}$/;
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
