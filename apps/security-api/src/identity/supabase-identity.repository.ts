@@ -40,8 +40,8 @@ export class SupabaseIdentityRepository {
         AND m.organization_id = ${organizationId}::uuid
         AND m.status = 'active'
         AND o.status = 'active'
-        AND op.status = 'active'
-        AND op.starts_at <= now()
+        AND op.status IN ('active', 'trial')
+        AND (op.starts_at IS NULL OR op.starts_at <= now())
         AND (op.ends_at IS NULL OR op.ends_at > now())
         AND p.code = ${productCode}
         AND p.status = 'active'
