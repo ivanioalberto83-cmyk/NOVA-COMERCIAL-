@@ -16,7 +16,8 @@
     "db:migrate:deploy": "prisma migrate deploy",
     "test:integration": "tsx --test test/disposable-database.spec.ts test/identity.persistence.spec.ts",
     "test:auth": "tsx --test test/password.service.spec.ts test/auth-token.service.spec.ts test/auth-session.guard.spec.ts",
-    "test:auth:integration": "tsx --test test/auth.integration.spec.ts"
+    "test:auth:integration": "tsx --test test/auth.integration.spec.ts",
+    "test:erp:contract": "tsx --test test/nova-comercial-master-data.contract.spec.ts"
   },
   "engines": {
     "node": ">=20"
