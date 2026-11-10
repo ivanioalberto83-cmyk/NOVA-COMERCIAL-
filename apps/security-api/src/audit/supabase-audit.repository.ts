@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { PrismaService } from '../persistence/prisma.service';
 
 export type AuditOutcome = 'success' | 'denied' | 'failure';
@@ -19,6 +20,8 @@ export interface AuditEventInput {
   metadata?: Record<string, unknown>;
 }
 
+type AuditExecutor = Pick<Prisma.TransactionClient, '$executeRaw'>;
+
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const OUTCOMES = new Set<AuditOutcome>(['success', 'denied', 'failure']);
 const SEVERITIES = new Set<AuditSeverity>(['info', 'warning', 'error', 'critical']);
@@ -33,7 +36,7 @@ function optionalUuid(value: string | null | undefined, field: string): string |
 export class SupabaseAuditRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  async write(event: AuditEventInput): Promise<void> {
+  async write(event: AuditEventInput, executor: AuditExecutor = this.prisma): Promise<void> {
     if (!event || typeof event !== 'object') throw new Error('An audit event is required');
     if (typeof event.eventType !== 'string' || event.eventType.trim().length === 0) {
       throw new Error('Audit event type is required');
@@ -58,7 +61,7 @@ export class SupabaseAuditRepository {
     const productId = optionalUuid(event.productId, 'productId');
     const correlationId = optionalUuid(event.correlationId, 'correlationId');
 
-    await this.prisma.$executeRaw`
+    await executor.$executeRaw`
       INSERT INTO nova_core.audit_events (
         actor_user_id,
         organization_id,
