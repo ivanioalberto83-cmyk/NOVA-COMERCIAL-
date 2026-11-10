@@ -302,3 +302,7 @@ COMMENT ON TABLE nova_comercial.suppliers IS
   'Supplier master data, isolated by organization_id; tax identifiers are unique per organization when supplied.';
 COMMENT ON TABLE nova_comercial.tax_codes IS
   'Configurable tax catalogue. Rates and effective dates must be approved against current Angolan tax rules before use.';
+
+-- Keep direct browser/mobile access closed until backend authorization is complete.
+REVOKE ALL ON SCHEMA nova_comercial FROM PUBLIC, anon, authenticated;
+REVOKE ALL ON ALL TABLES IN SCHEMA nova_comercial FROM PUBLIC, anon, authenticated;
