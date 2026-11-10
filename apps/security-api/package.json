@@ -13,11 +13,10 @@
     "lint": "tsc --noEmit -p tsconfig.json",
     "db:generate": "prisma generate",
     "db:validate": "prisma validate",
-    "db:migrate:deploy": "prisma migrate deploy",
-    "test:integration": "tsx --test test/disposable-database.spec.ts test/identity.persistence.spec.ts",
-    "test:auth": "tsx --test test/password.service.spec.ts test/auth-token.service.spec.ts test/auth-session.guard.spec.ts src/security/supabase-auth-client.spec.ts",
-    "test:auth:integration": "tsx --test test/auth.integration.spec.ts",
-    "test:erp:contract": "tsx --test test/nova-comercial-master-data.contract.spec.ts"
+    "test:integration": "tsx --test test/disposable-database.spec.ts test/supabase-identity.integration.spec.ts",
+    "test:auth": "tsx --test src/security/supabase-auth-client.spec.ts src/security/supabase-auth.service.spec.ts src/security/supabase-auth-session.guard.spec.ts src/security/supabase-identity.repository.spec.ts",
+    "test:erp:contract": "tsx --test test/nova-comercial-master-data.contract.spec.ts",
+    "db:push:disposable": "prisma db push --force-reset --accept-data-loss"
   },
   "engines": {
     "node": ">=20"
