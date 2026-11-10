@@ -16,7 +16,7 @@ Serviço NestJS/TypeScript do UNIVERSO NOVA. Esta API está em construção e n�
 - `nova_comercial`: dados operacionais do ERP; a migração inicial está preparada separadamente.
 - `public`: estruturas legadas do NOVA ESCOLAR; não alterar neste trabalho.
 
-A API usa consultas parametrizadas para resolver memberships e permissões no `nova_core` real. O schema Prisma existente ainda contém modelos legados incompatíveis e está em reconciliação; por isso, não executar migrações Prisma no Supabase partilhado nem usar `db push`.
+O `schema.prisma` agora espelha os nove modelos reais de `nova_core`. A identidade de utilizador e credenciais continuam sob responsabilidade do Supabase Auth; os campos UUID de utilizador são tratados como referências externas, sem criar uma tabela de credenciais local. O Prisma serve como contrato tipado e camada de consulta do backend. Nunca executar `prisma db push`, `migrate deploy` ou `migrate reset` no Supabase partilhado.
 
 ## Configuração local
 
@@ -49,11 +49,12 @@ A migração ainda não foi aplicada ao Supabase. A taxa de imposto e a configur
 
 ## Testes
 
-A pipeline usa PostgreSQL descartável. Comandos disponíveis:
+A pipeline usa PostgreSQL descartável e provisiona o schema com `prisma db push --force-reset` exclusivamente nesse ambiente. Comandos disponíveis:
 ```bash
 npm ci
 npm run db:generate
 npm run db:validate
+npm run db:push:disposable # apenas na base descartável local/CI
 npm run lint
 npm run test
 npm run test:auth
@@ -62,13 +63,13 @@ npm run test:e2e
 npm run build
 ```
 
-Os testes de integração antigos que usam os modelos Prisma legados ainda precisam de ser substituídos por testes contra o contrato real Supabase. Não executar testes destrutivos contra bases partilhadas ou de produção.
+Os testes de integração criam dados isolados e únicos na base PostgreSQL descartável, exercitando a cadeia de membership, organização, produto, papéis e permissões. Nunca executar testes destrutivos contra bases partilhadas ou de produção.
 
 ## Limitações ainda abertas
 
-- Reconciliação completa do `schema.prisma` com as nove tabelas reais de `nova_core`.
-- Remoção dos fluxos legados de autenticação e testes que dependem de tabelas `security_*`.
-- Testes de integração reais para membership, produto, RBAC e isolamento multiempresa.
+- Confirmar a pipeline completa após a remoção das migrações Prisma locais antigas e a adopção do contrato actual.
+- Validar constraints de referência para `auth.users` no fixture PostgreSQL, mantendo Supabase Auth como autoridade de identidade.
+- Reforçar testes de integração para estados suspensos, revogação de sessão e expiração de entitlement.
 - Auditoria persistente em `audit_events`.
 - CRUD de dados mestres com autorização por permissão.
 - UI do NOVA COMERCIAL e módulos transaccionais.
