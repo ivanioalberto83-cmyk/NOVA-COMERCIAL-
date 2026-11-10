@@ -86,25 +86,31 @@ export class SupabaseAuthService {
     }
   }
 
-  async authorizeAccessToken(accessToken: string): Promise<SupabasePrincipal | null> {
+  async authorizeAccessToken(
+    accessToken: string,
+    organizationId: string,
+    productCode: string,
+  ): Promise<SupabasePrincipal | null> {
     let user: SupabaseAuthUser;
     try {
       user = await this.provider.getUser(accessToken);
     } catch {
       return null;
     }
-    // Tenant and product context is deliberately not trusted from client headers.
-    // A protected request must carry an organization and product selected in a
-    // signed, server-issued context in the next implementation increment.
+    if (!organizationId || !productCode) return null;
+    const membership = await this.identity.findActiveProductMembership(
+      user.id, organizationId, productCode,
+    );
+    if (!membership) return null;
     return {
       sub: user.id,
       ...(user.email ? { email: user.email } : {}),
-      tenantId: '',
-      membershipId: '',
-      productId: '',
-      product: '',
-      roles: [],
-      permissions: [],
+      tenantId: membership.organizationId,
+      membershipId: membership.membershipId,
+      productId: membership.productId,
+      product: membership.productCode,
+      roles: membership.roles,
+      permissions: membership.permissions,
     };
   }
 }
