@@ -13,7 +13,7 @@
     "lint": "tsc --noEmit -p tsconfig.json",
     "db:generate": "prisma generate",
     "db:validate": "prisma validate",
-    "test:integration": "tsx --test test/disposable-database.spec.ts test/supabase-identity.integration.spec.ts test/supabase-audit.integration.spec.ts",
+    "test:integration": "tsx --test test/disposable-database.spec.ts test/supabase-identity.integration.spec.ts test/supabase-audit.integration.spec.ts test/master-data.integration.spec.ts",
     "test:auth": "tsx --test src/security/supabase-auth-client.spec.ts src/security/supabase-auth.service.spec.ts src/security/supabase-auth-session.guard.spec.ts src/security/supabase-identity.repository.spec.ts src/security/supabase-audit.repository.spec.ts",
     "test:erp:contract": "tsx --test test/nova-comercial-master-data.contract.spec.ts test/master-data-permissions.contract.spec.ts",
     "db:push:disposable": "prisma db push --force-reset --accept-data-loss"
