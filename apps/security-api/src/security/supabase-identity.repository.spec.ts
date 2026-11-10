@@ -3,7 +3,7 @@ import { describe, it } from 'node:test';
 import { SupabaseIdentityRepository } from '../identity/supabase-identity.repository';
 
 describe('SupabaseIdentityRepository', () => {
-  it('uses the lowercase status values defined by the live nova_core constraints', async () => {
+  it('uses lowercase statuses and honours trial and nullable entitlement dates', async () => {
     const statements: string[] = [];
     const prisma = {
       $queryRaw: async (strings: TemplateStringsArray) => {
@@ -30,8 +30,8 @@ describe('SupabaseIdentityRepository', () => {
     assert.ok(result);
     assert.match(statements[0], /m\.status\s*=\s*'active'/);
     assert.match(statements[0], /o\.status\s*=\s*'active'/);
-    assert.match(statements[0], /op\.status\s*=\s*'active'/);
+    assert.match(statements[0], /op\.status\s+IN\s*\('active',\s*'trial'\)/);
     assert.match(statements[0], /p\.status\s*=\s*'active'/);
-    assert.match(statements[0], /op\.starts_at\s*<=\s*now\(\)/);
+    assert.match(statements[0], /\(op\.starts_at IS NULL OR op\.starts_at\s*<=\s*now\(\)\)/);
   });
 });
