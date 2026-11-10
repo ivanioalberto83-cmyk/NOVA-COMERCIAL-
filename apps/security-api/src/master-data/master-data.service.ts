@@ -231,7 +231,7 @@ export class MasterDataService {
     return toCamel(rows[0]);
   }
 
-  async create(resource: MasterDataResource, context: MasterDataContext, body: unknown) {
+  async create(resource: MasterDataResource, context: MasterDataContext, body: unknown): Promise<Record<string, unknown>> {
     const definition = this.definition(resource);
     this.assertContext(context);
     const data = this.validateBody(resource, body, false);
@@ -263,14 +263,14 @@ export class MasterDataService {
           severity: 'info',
           metadata: { fields },
         }, tx);
-        return toCamel(row);
+        return toCamel(row) as Record<string, unknown>;
       });
     } catch (error) {
       this.translateDatabaseError(error);
     }
   }
 
-  async update(resource: MasterDataResource, context: MasterDataContext, id: string, body: unknown) {
+  async update(resource: MasterDataResource, context: MasterDataContext, id: string, body: unknown): Promise<Record<string, unknown>> {
     const definition = this.definition(resource);
     this.assertContext(context);
     this.assertUuid(id, 'id');
@@ -378,10 +378,14 @@ export class MasterDataService {
       let valid = false;
       switch (kind) {
         case 'string':
-          valid = typeof value === 'string';
-          if (valid && field === 'email') valid = value === '' || EMAIL.test(value);
-          if (valid && field === 'country_code') valid = /^[A-Z]{2}$/.test(value as string);
-          if (valid && resource === 'currencies' && field === 'code') valid = /^[A-Z]{3}$/.test(value as string);
+          if (typeof value !== 'string') {
+            valid = false;
+          } else {
+            valid = true;
+            if (field === 'email') valid = value === '' || EMAIL.test(value);
+            if (field === 'country_code') valid = /^[A-Z]{2}$/.test(value);
+            if (resource === 'currencies' && field === 'code') valid = /^[A-Z]{3}$/.test(value);
+          }
           break;
         case 'uuid':
           valid = typeof value === 'string' && UUID.test(value);
