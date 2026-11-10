@@ -69,7 +69,8 @@ jobs:
           DATABASE_URL_NO_QUERY="${DATABASE_URL%%\?*}"
           psql "$DATABASE_URL_NO_QUERY" -v ON_ERROR_STOP=1 <<'SQL'
           CREATE TABLE nova_core.organizations (id uuid PRIMARY KEY);
-          DO $$          BEGIN
+          DO $
+          BEGIN
             IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'anon') THEN
               CREATE ROLE anon NOLOGIN;
             END IF;
