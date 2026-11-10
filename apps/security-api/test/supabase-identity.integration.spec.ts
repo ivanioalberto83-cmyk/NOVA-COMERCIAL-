@@ -23,7 +23,7 @@ describe('Supabase identity repository against disposable PostgreSQL', { skip: !
     connected = true;
     await prisma.$executeRawUnsafe('CREATE SCHEMA IF NOT EXISTS auth');
     await prisma.$executeRawUnsafe('CREATE TABLE IF NOT EXISTS auth.users (id uuid PRIMARY KEY)');
-    await prisma.$executeRaw`INSERT INTO auth.users (id) VALUES (${userId})`;
+    await prisma.$executeRaw`INSERT INTO auth.users (id) VALUES (${userId}::uuid)`;
 
     await prisma.organization.createMany({
       data: [
@@ -78,7 +78,7 @@ describe('Supabase identity repository against disposable PostgreSQL', { skip: !
     await prisma.permission.deleteMany({ where: { id: permissionId } });
     await prisma.product.deleteMany({ where: { id: productId } });
     await prisma.organization.deleteMany({ where: { id: { in: [organizationId, otherOrganizationId] } } });
-    await prisma.$executeRaw`DELETE FROM auth.users WHERE id = ${userId}`;
+    await prisma.$executeRaw`DELETE FROM auth.users WHERE id = ${userId}::uuid`;
     await prisma.$disconnect();
   });
 
