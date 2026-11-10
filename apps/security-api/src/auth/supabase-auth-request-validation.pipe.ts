@@ -4,7 +4,7 @@ type Kind = 'login' | 'refresh';
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const PRODUCT = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+const PRODUCT = /^[a-z][a-z0-9-]{1,79}$/;
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
@@ -25,7 +25,7 @@ export class SupabaseAuthRequestValidationPipe implements PipeTransform {
     const valid = this.kind === 'login'
       ? exactKeys(value, ['email', 'password', 'organizationId', 'productCode']) &&
         typeof value.email === 'string' && value.email.length <= 320 && EMAIL.test(value.email) &&
-        typeof value.password === 'string' && value.password.length >= 1 && value.password.length <= 128 &&
+        typeof value.password === 'string' && value.password.length >= 12 && value.password.length <= 128 &&
         typeof value.organizationId === 'string' && UUID.test(value.organizationId) &&
         typeof value.productCode === 'string' && value.productCode.length <= 80 && PRODUCT.test(value.productCode)
       : exactKeys(value, ['refreshToken', 'organizationId', 'productCode']) &&
