@@ -306,3 +306,5 @@ COMMENT ON TABLE nova_comercial.tax_codes IS
 -- Keep direct browser/mobile access closed until backend authorization is complete.
 REVOKE ALL ON SCHEMA nova_comercial FROM PUBLIC, anon, authenticated;
 REVOKE ALL ON ALL TABLES IN SCHEMA nova_comercial FROM PUBLIC, anon, authenticated;
+GRANT USAGE ON SCHEMA nova_comercial TO service_role;
+GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA nova_comercial TO service_role;
