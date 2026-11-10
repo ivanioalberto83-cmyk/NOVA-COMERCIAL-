@@ -64,6 +64,25 @@ jobs:
         run: |
           DATABASE_URL_NO_QUERY="${DATABASE_URL%%\?*}"
           psql "$DATABASE_URL_NO_QUERY" -v ON_ERROR_STOP=1 -c 'CREATE SCHEMA IF NOT EXISTS nova_core;'
+      - name: Apply NOVA COMERCIAL master-data migration to disposable PostgreSQL
+        run: |
+          DATABASE_URL_NO_QUERY="${DATABASE_URL%%\?*}"
+          psql "$DATABASE_URL_NO_QUERY" -v ON_ERROR_STOP=1 <<'SQL'
+          CREATE TABLE nova_core.organizations (id uuid PRIMARY KEY);
+          DO $
+          BEGIN
+            IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'anon') THEN
+              CREATE ROLE anon NOLOGIN;
+            END IF;
+            IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'authenticated') THEN
+              CREATE ROLE authenticated NOLOGIN;
+            END IF;
+          END
+          $;
+          SQL
+          psql "$DATABASE_URL_NO_QUERY" -v ON_ERROR_STOP=1 -f database/nova_comercial/migrations/20261110000100_master_data_foundation.sql
+      - name: NOVA COMERCIAL master-data contract tests
+        run: npm run test:erp:contract
       - name: Apply migrations to disposable PostgreSQL
         run: npm run db:migrate:deploy
       - name: Generate dependency audit report
@@ -96,7 +115,5 @@ jobs:
         run: npm run test:integration
       - name: Authentication and refresh-token integration tests
         run: npm run test:auth:integration
-      - name: NOVA COMERCIAL master-data contract tests
-        run: npm run test:erp:contract
       - name: Build
         run: npm run build
