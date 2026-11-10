@@ -68,11 +68,15 @@ Os testes de integração criam dados isolados e únicos na base PostgreSQL desc
 
 ## Limitações ainda abertas
 
-- Confirmar a pipeline completa após a remoção das migrações Prisma locais antigas e a adopção do contrato actual.
+- Confirmar a pipeline completa e a suite de integração do CRUD após a reconciliação do contrato Prisma/Supabase.
 - Validar constraints de referência para `auth.users` no fixture PostgreSQL, mantendo Supabase Auth como autoridade de identidade.
 - Reforçar testes de integração para estados suspensos, revogação de sessão e expiração de entitlement.
 - Expandir a auditoria para alterações administrativas e operações CRUD, com `correlation_id` e contexto de pedido.
-- CRUD de dados mestres com autorização por permissão.
+- CRUD inicial de dados mestres implementado no backend para os onze recursos, com listagem paginada, pesquisa, consulta por ID, criação e actualização parcial.
+- Rotas protegidas por permissões `master_data.<recurso>.(read|create|update)`; o catálogo de permissões está preparado em `database/nova_core/seeds/20261110000100_master_data_permissions.sql`, mas ainda não foi aplicado nem atribuído a papéis.
+- Filtros e escritas limitados ao `organization_id` derivado da sessão verificada; IDs de relações são validados por FKs compostas no PostgreSQL.
+- Criação/actualização e evento de auditoria são executados na mesma transacção.
+- Teste de integração preparado para isolamento entre duas organizações, FKs cruzadas, precisão decimal, sobreposição de períodos e auditoria; a execução mais recente desta suite ainda precisa de confirmação.
 - UI do NOVA COMERCIAL e módulos transaccionais.
 - Revisão e execução controlada da migração em PostgreSQL descartável; aprovação separada antes de qualquer alteração no Supabase partilhado.
 
