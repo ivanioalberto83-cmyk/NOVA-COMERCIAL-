@@ -34,7 +34,8 @@ Não colocar a chave `service_role`, JWT signing secret, palavras-passe ou token
 - `POST /auth/logout`: termina a sessão Supabase usando o Bearer token.
 - Rotas protegidas exigem Bearer token, `x-organization-id` e `x-product-code`.
 - O backend valida o token no endpoint `/auth/v1/user` do Supabase Auth e resolve novamente membership, organização, produto, papéis e permissões no servidor. Os cabeçalhos são apenas uma selecção de contexto; não concedem acesso por si.
-- O `AuthorizationGuard` exige as permissões declaradas por endpoint com `@RequirePermissions(...)`.
+- O `AuthorizationGuard` exige as permissões declaradas por endpoint com `@RequirePermissions(...)`; rotas protegidas sem política explícita são recusadas.
+- Login, renovação e logout geram eventos append-only em `nova_core.audit_events`. Eventos de sucesso no login/refresh são obrigatórios: se a auditoria não puder ser gravada, a sessão é terminada e o pedido falha fechado. Tentativas negadas/falhadas são registadas sem guardar palavras-passe, access tokens ou refresh tokens.
 
 A validação remota do utilizador em cada pedido é uma primeira implementação segura, mas acrescenta latência e deverá ser substituída por validação local de JWT/JWKS quando o algoritmo, issuer, audience e chaves do projecto estiverem confirmados. Não assumir HS256 nem distribuir segredos de assinatura.
 
@@ -70,7 +71,7 @@ Os testes de integração criam dados isolados e únicos na base PostgreSQL desc
 - Confirmar a pipeline completa após a remoção das migrações Prisma locais antigas e a adopção do contrato actual.
 - Validar constraints de referência para `auth.users` no fixture PostgreSQL, mantendo Supabase Auth como autoridade de identidade.
 - Reforçar testes de integração para estados suspensos, revogação de sessão e expiração de entitlement.
-- Auditoria persistente em `audit_events`.
+- Expandir a auditoria para alterações administrativas e operações CRUD, com `correlation_id` e contexto de pedido.
 - CRUD de dados mestres com autorização por permissão.
 - UI do NOVA COMERCIAL e módulos transaccionais.
 - Revisão e execução controlada da migração em PostgreSQL descartável; aprovação separada antes de qualquer alteração no Supabase partilhado.
