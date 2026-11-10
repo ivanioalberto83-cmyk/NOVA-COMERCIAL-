@@ -4,7 +4,7 @@ import { IS_PUBLIC_KEY } from './public.decorator';
 import { SupabaseAuthService, SupabasePrincipal } from './supabase-auth.service';
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-const PRODUCT_CODE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+const PRODUCT_CODE = /^[a-z][a-z0-9-]{1,79}$/;
 
 type RequestWithAuth = {
   headers: Record<string, string | string[] | undefined>;
