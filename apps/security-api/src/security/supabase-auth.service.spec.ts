@@ -13,8 +13,9 @@ const membership = {
 };
 
 describe('SupabaseAuthService', () => {
-  it('authenticates through Supabase and only issues access for an active tenant/product membership', async () => {
+  it('authenticates through Supabase, checks entitlement and records a non-sensitive audit event', async () => {
     const calls: string[] = [];
+    const auditEvents: Array<Record<string, unknown>> = [];
     const provider = {
       signInWithPassword: async () => ({
         accessToken: 'provider-access',
@@ -35,10 +36,11 @@ describe('SupabaseAuthService', () => {
         return membership;
       },
     };
-    const service = new SupabaseAuthService(provider as never, identity as never);
+    const audit = { write: async (event: Record<string, unknown>) => { auditEvents.push(event); } };
+    const service = new SupabaseAuthService(provider as never, identity as never, audit as never);
     const result = await service.login({
       email: 'USER@example.test',
-      password: 'password',
+      password: 'NOVA-Strong-Passphrase-2026!',
       organizationId: membership.organizationId,
       productCode: membership.productCode,
     });
@@ -46,10 +48,16 @@ describe('SupabaseAuthService', () => {
     assert.equal(result.refreshToken, 'provider-refresh');
     assert.deepEqual(result.permissions, membership.permissions);
     assert.deepEqual(calls, []);
+    assert.equal(auditEvents.length, 1);
+    assert.equal(auditEvents[0].action, 'login');
+    assert.equal(auditEvents[0].outcome, 'success');
+    assert.equal(auditEvents[0].actorUserId, user.id);
+    assert.deepEqual(auditEvents[0].metadata, { productCode: 'nova-comercial' });
   });
 
-  it('rejects an authenticated Supabase user without an active organization/product entitlement', async () => {
+  it('revokes a provider session and audits denied access without disclosing credentials', async () => {
     let signedOut = false;
+    const auditEvents: Array<Record<string, unknown>> = [];
     const provider = {
       signInWithPassword: async () => ({
         accessToken: 'provider-access',
@@ -63,14 +71,20 @@ describe('SupabaseAuthService', () => {
       refreshSession: async () => { throw new Error('unused'); },
     };
     const identity = { findActiveProductMembership: async () => null };
-    const service = new SupabaseAuthService(provider as never, identity as never);
+    const audit = { write: async (event: Record<string, unknown>) => { auditEvents.push(event); } };
+    const service = new SupabaseAuthService(provider as never, identity as never, audit as never);
     await assert.rejects(service.login({
       email: 'user@example.test',
-      password: 'password',
+      password: 'NOVA-Strong-Passphrase-2026!',
       organizationId: membership.organizationId,
       productCode: membership.productCode,
     }), /inactive access/i);
     assert.equal(signedOut, true);
+    assert.equal(auditEvents[0].outcome, 'denied');
+    assert.deepEqual(auditEvents[0].metadata, {
+      reason: 'inactive_membership_or_product',
+      productCode: 'nova-comercial',
+    });
   });
 
   it('revalidates membership for every protected request instead of trusting client context', async () => {
@@ -90,7 +104,8 @@ describe('SupabaseAuthService', () => {
         return organizationId === membership.organizationId ? membership : null;
       },
     };
-    const service = new SupabaseAuthService(provider as never, identity as never);
+    const audit = { write: async () => undefined };
+    const service = new SupabaseAuthService(provider as never, identity as never, audit as never);
     const valid = await service.authorizeAccessToken(
       'provider-access', membership.organizationId, membership.productCode,
     );
@@ -102,5 +117,31 @@ describe('SupabaseAuthService', () => {
     );
     assert.equal(invalid, null);
     assert.equal(requestedTenant, 'b4a1c111-3c32-4a45-9a0b-31d9f4c9a111');
+  });
+
+  it('fails closed and revokes the provider session if successful login cannot be audited', async () => {
+    let signedOut = false;
+    const provider = {
+      signInWithPassword: async () => ({
+        accessToken: 'provider-access',
+        refreshToken: 'provider-refresh',
+        expiresIn: 3600,
+        tokenType: 'bearer',
+        user,
+      }),
+      signOut: async () => { signedOut = true; },
+      getUser: async () => user,
+      refreshSession: async () => { throw new Error('unused'); },
+    };
+    const identity = { findActiveProductMembership: async () => membership };
+    const audit = { write: async () => { throw new Error('database unavailable'); } };
+    const service = new SupabaseAuthService(provider as never, identity as never, audit as never);
+    await assert.rejects(service.login({
+      email: 'user@example.test',
+      password: 'NOVA-Strong-Passphrase-2026!',
+      organizationId: membership.organizationId,
+      productCode: membership.productCode,
+    }), /audit could not be recorded/i);
+    assert.equal(signedOut, true);
   });
 });
