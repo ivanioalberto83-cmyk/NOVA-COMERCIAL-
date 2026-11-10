@@ -42,6 +42,8 @@ jobs:
     env:
       DATABASE_URL: postgresql://nova_security_test:nova_security_test@localhost:5432/nova_security_test?schema=nova_core
       NOVA_ALLOW_DESTRUCTIVE_TEST_DATABASE: 'true'
+      SUPABASE_URL: 'https://example.supabase.co'
+      SUPABASE_ANON_KEY: 'ci-test-publishable-key'
     defaults:
       run:
         working-directory: apps/security-api
