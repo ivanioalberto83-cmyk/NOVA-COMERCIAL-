@@ -90,6 +90,10 @@ jobs:
         run: |
           DATABASE_URL_NO_QUERY="${DATABASE_URL%%\?*}"
           psql "$DATABASE_URL_NO_QUERY" -v ON_ERROR_STOP=1 -f database/nova_comercial/migrations/20261110000100_master_data_foundation.sql
+      - name: Seed NOVA COMERCIAL permissions in disposable PostgreSQL
+        run: |
+          DATABASE_URL_NO_QUERY="${DATABASE_URL%%\?*}"
+          psql "$DATABASE_URL_NO_QUERY" -v ON_ERROR_STOP=1 -f database/nova_core/seeds/20261110000100_master_data_permissions.sql
       - name: NOVA COMERCIAL master-data contract tests
         run: npm run test:erp:contract
       - name: Generate dependency audit report
