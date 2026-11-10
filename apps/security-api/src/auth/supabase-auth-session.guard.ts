@@ -3,6 +3,9 @@ import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from
 import { IS_PUBLIC_KEY } from './public.decorator';
 import { SupabaseAuthService, SupabasePrincipal } from './supabase-auth.service';
 
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+const PRODUCT_CODE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+
 type RequestWithAuth = {
   headers: Record<string, string | string[] | undefined>;
   auth?: SupabasePrincipal;
@@ -23,7 +26,8 @@ export class SupabaseAuthSessionGuard implements CanActivate {
     const organizationId = request.headers['x-organization-id'];
     const productCode = request.headers['x-product-code'];
     if (typeof authorization !== 'string' || !/^Bearer\s+\S+$/i.test(authorization) ||
-        typeof organizationId !== 'string' || typeof productCode !== 'string') {
+        typeof organizationId !== 'string' || !UUID.test(organizationId) ||
+        typeof productCode !== 'string' || productCode.length > 80 || !PRODUCT_CODE.test(productCode)) {
       throw new UnauthorizedException('A valid bearer token and organization/product context are required');
     }
 
