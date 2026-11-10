@@ -60,7 +60,7 @@ CREATE INDEX fiscal_periods_org_dates_idx
 CREATE TABLE nova_comercial.currencies (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   organization_id UUID NOT NULL,
-  code CHAR(3) NOT NULL,
+  code CHAR(3) NOT NULL DEFAULT 'AOA',
   name VARCHAR(80) NOT NULL,
   symbol VARCHAR(8) NOT NULL,
   decimal_places SMALLINT NOT NULL DEFAULT 2 CHECK (decimal_places BETWEEN 0 AND 4),
