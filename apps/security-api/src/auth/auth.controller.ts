@@ -27,9 +27,9 @@ export class AuthController {
   @Post('logout')
   @HttpCode(200)
   logout(@Headers('authorization') authorization?: string) {
-    if (typeof authorization !== 'string' || !/^Bearer\\s+\\S+$/i.test(authorization)) {
+    if (typeof authorization !== 'string' || !/^Bearer\s+\S+$/i.test(authorization)) {
       throw new UnauthorizedException('A valid bearer token is required');
     }
-    return this.auth.logout(authorization.replace(/^Bearer\\s+/i, ''));
+    return this.auth.logout(authorization.replace(/^Bearer\s+/i, ''));
   }
 }
