@@ -41,6 +41,7 @@ export class SupabaseIdentityRepository {
         AND m.status = 'ACTIVE'
         AND o.status = 'ACTIVE'
         AND op.status = 'ACTIVE'
+        AND op.starts_at <= now()
         AND (op.ends_at IS NULL OR op.ends_at > now())
         AND p.code = ${productCode}
         AND p.status = 'ACTIVE'
