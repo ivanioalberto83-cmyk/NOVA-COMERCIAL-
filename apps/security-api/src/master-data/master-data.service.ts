@@ -306,7 +306,7 @@ export class MasterDataService {
           severity: 'info',
           metadata: { fields },
         }, tx);
-        return toCamel(row);
+        return toCamel(row) as Record<string, unknown>;
       });
     } catch (error) {
       this.translateDatabaseError(error);
