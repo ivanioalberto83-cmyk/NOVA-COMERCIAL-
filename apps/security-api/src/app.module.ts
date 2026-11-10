@@ -5,9 +5,10 @@ import { IdentityModule } from './identity/identity.module';
 import { AuthModule } from './auth/auth.module';
 import { SupabaseAuthSessionGuard } from './auth/supabase-auth-session.guard';
 import { AuthorizationGuard } from './security/authorization.guard';
+import { MasterDataModule } from './master-data/master-data.module';
 
 @Module({
-  imports: [IdentityModule, AuthModule],
+  imports: [IdentityModule, AuthModule, MasterDataModule],
   controllers: [HealthController],
   providers: [
     { provide: APP_GUARD, useClass: SupabaseAuthSessionGuard },
