@@ -1,10 +1,10 @@
 export interface SecurityApiEnvironment {
   databaseUrl: string;
-  jwtSecret: string;
+  supabaseUrl: string;
+  supabaseAnonKey: string;
   port: number;
 }
 
-const MIN_JWT_SECRET_LENGTH = 32;
 const DEFAULT_PORT = 3001;
 
 export function validateEnvironment(env: NodeJS.ProcessEnv): SecurityApiEnvironment {
@@ -28,9 +28,23 @@ export function validateEnvironment(env: NodeJS.ProcessEnv): SecurityApiEnvironm
     throw new Error('DATABASE_URL must target the nova_core schema');
   }
 
-  const jwtSecret = env.JWT_SECRET;
-  if (typeof jwtSecret !== 'string' || jwtSecret.trim().length < MIN_JWT_SECRET_LENGTH) {
-    throw new Error(`JWT_SECRET must contain at least ${MIN_JWT_SECRET_LENGTH} non-whitespace characters`);
+  const supabaseUrl = env.SUPABASE_URL;
+  if (typeof supabaseUrl !== 'string' || supabaseUrl.trim().length === 0) {
+    throw new Error('SUPABASE_URL is required');
+  }
+  let parsedSupabaseUrl: URL;
+  try {
+    parsedSupabaseUrl = new URL(supabaseUrl);
+  } catch {
+    throw new Error('SUPABASE_URL must be a valid URL');
+  }
+  if (!['https:', 'http:'].includes(parsedSupabaseUrl.protocol) || !parsedSupabaseUrl.hostname) {
+    throw new Error('SUPABASE_URL must be a valid HTTP(S) URL');
+  }
+
+  const supabaseAnonKey = env.SUPABASE_ANON_KEY;
+  if (typeof supabaseAnonKey !== 'string' || supabaseAnonKey.trim().length === 0) {
+    throw new Error('SUPABASE_ANON_KEY is required');
   }
 
   const rawPort = env.PORT ?? String(DEFAULT_PORT);
@@ -42,5 +56,5 @@ export function validateEnvironment(env: NodeJS.ProcessEnv): SecurityApiEnvironm
     throw new Error('PORT must be an integer between 1 and 65535');
   }
 
-  return { databaseUrl, jwtSecret, port };
+  return { databaseUrl, supabaseUrl, supabaseAnonKey, port };
 }
