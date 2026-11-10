@@ -243,7 +243,7 @@ export class MasterDataService {
         const fields = Object.keys(data);
         const columns = ['organization_id', ...fields];
         const values = [context.organizationId, ...fields.map((field) => data[field])];
-        const placeholders = values.map((_value, index) => `$${index + 1}`);
+        const placeholders = [\n          '$1::uuid',\n          ...fields.map((field, index) => `${index + 2}::${SQL_CASTS[definition.fields[field]]}`),\n        ];
         const rows = await tx.$queryRawUnsafe<Array<Record<string, unknown>>>(
           `INSERT INTO nova_comercial.${definition.table} (${columns.join(', ')})
            VALUES (${placeholders.join(', ')}) RETURNING *`,
@@ -281,7 +281,7 @@ export class MasterDataService {
           await this.assertFiscalPeriodDoesNotOverlap(tx, context.organizationId, data, id);
         }
         const fields = Object.keys(data);
-        const assignments = fields.map((field, index) => `${field} = $${index + 1}`);
+        const assignments = fields.map((field, index) =>\n          `${field} = ${index + 1}::${SQL_CASTS[definition.fields[field]]}`,\n        );
         const values = [...fields.map((field) => data[field]), context.organizationId, id];
         const organizationPosition = fields.length + 1;
         const idPosition = fields.length + 2;
