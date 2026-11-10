@@ -118,7 +118,7 @@ describe('NOVA COMERCIAL master data API service against disposable PostgreSQL',
       credit_limit: '1234567890123.1234',
       payment_terms_days: 30,
     });
-    assert.equal(customer.creditLimit, '1234567890123.1234');
+    assert.equal(String(customer.creditLimit), '1234567890123.1234');
   });
 
   it('rejects overlapping open fiscal periods within the same organization', async () => {
