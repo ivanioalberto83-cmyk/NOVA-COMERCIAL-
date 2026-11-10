@@ -49,7 +49,7 @@ describe('NOVA COMERCIAL master-data migration contract', () => {
     ]) {
       assert.match(
         sql,
-        new RegExp('ALTER TABLE nova_comercial\\.' + table + '[\\s\\S]*?FOREIGN KEY \\(organization_id\\) REFERENCES nova_core\\.organizations', 'i'),
+        new RegExp('CREATE TABLE nova_comercial\\.' + table + '[\\s\\S]*?FOREIGN KEY \\(organization_id\\) REFERENCES nova_core\\.organizations', 'i'),
         `${table} must reference nova_core.organizations`,
       );
     }
