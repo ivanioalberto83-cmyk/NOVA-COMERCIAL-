@@ -217,7 +217,7 @@ export class MasterDataService {
     };
   }
 
-  async get(resource: MasterDataResource, context: MasterDataContext, id: string) {
+  async get(resource: MasterDataResource, context: MasterDataContext, id: string): Promise<Record<string, unknown>> {
     const definition = this.definition(resource);
     this.assertContext(context);
     this.assertUuid(id, 'id');
@@ -228,7 +228,7 @@ export class MasterDataService {
       id,
     );
     if (!rows[0]) throw new NotFoundException('Record not found');
-    return toCamel(rows[0]);
+    return toCamel(rows[0]) as Record<string, unknown>;
   }
 
   async create(resource: MasterDataResource, context: MasterDataContext, body: unknown): Promise<Record<string, unknown>> {
