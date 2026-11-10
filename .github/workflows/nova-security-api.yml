@@ -5,6 +5,7 @@ on:
     branches:
       - feature/nova-security-foundation-design
       - feature/nova-core-supabase-auth-alignment
+      - feature/nova-comercial-master-data
     paths:
       - 'apps/security-api/**'
       - '.github/workflows/nova-security-api.yml'
@@ -41,6 +42,8 @@ jobs:
     env:
       DATABASE_URL: postgresql://nova_security_test:nova_security_test@localhost:5432/nova_security_test?schema=nova_core
       NOVA_ALLOW_DESTRUCTIVE_TEST_DATABASE: 'true'
+      SUPABASE_URL: 'https://example.supabase.co'
+      SUPABASE_ANON_KEY: 'ci-test-publishable-key'
     defaults:
       run:
         working-directory: apps/security-api
@@ -63,8 +66,36 @@ jobs:
         run: |
           DATABASE_URL_NO_QUERY="${DATABASE_URL%%\?*}"
           psql "$DATABASE_URL_NO_QUERY" -v ON_ERROR_STOP=1 -c 'CREATE SCHEMA IF NOT EXISTS nova_core;'
-      - name: Apply migrations to disposable PostgreSQL
-        run: npm run db:migrate:deploy
+      - name: Provision live NOVA CORE Prisma contract in disposable PostgreSQL
+        run: npm run db:push:disposable
+      - name: Prepare disposable organization reference and grants for ERP SQL contract
+        run: |
+          DATABASE_URL_NO_QUERY="${DATABASE_URL%%\?*}"
+          psql "$DATABASE_URL_NO_QUERY" -v ON_ERROR_STOP=1 <<'SQL'
+          DO $$
+          BEGIN
+            IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'anon') THEN
+              CREATE ROLE anon NOLOGIN;
+            END IF;
+            IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'authenticated') THEN
+              CREATE ROLE authenticated NOLOGIN;
+            END IF;
+            IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'service_role') THEN
+              CREATE ROLE service_role NOLOGIN BYPASSRLS;
+            END IF;
+          END
+          $$;
+          SQL
+      - name: Apply NOVA COMERCIAL master-data migration to disposable PostgreSQL
+        run: |
+          DATABASE_URL_NO_QUERY="${DATABASE_URL%%\?*}"
+          psql "$DATABASE_URL_NO_QUERY" -v ON_ERROR_STOP=1 -f database/nova_comercial/migrations/20261110000100_master_data_foundation.sql
+      - name: Seed NOVA COMERCIAL permissions in disposable PostgreSQL
+        run: |
+          DATABASE_URL_NO_QUERY="${DATABASE_URL%%\?*}"
+          psql "$DATABASE_URL_NO_QUERY" -v ON_ERROR_STOP=1 -f database/nova_core/seeds/20261110000100_master_data_permissions.sql
+      - name: NOVA COMERCIAL master-data contract tests
+        run: npm run test:erp:contract
       - name: Generate dependency audit report
         if: always()
         run: npm audit --json > npm-audit.json || true
@@ -91,9 +122,7 @@ jobs:
         run: npm run test
       - name: Authentication unit tests
         run: npm run test:auth
-      - name: PostgreSQL identity and tenant-isolation integration tests
+      - name: Supabase identity and tenant-isolation integration tests
         run: npm run test:integration
-      - name: Authentication and refresh-token integration tests
-        run: npm run test:auth:integration
       - name: Build
         run: npm run build

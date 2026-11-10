@@ -1,0 +1,38 @@
+-- NOVA COMERCIAL master-data permission catalogue.
+-- This seed is separate from production migrations and requires explicit release approval.
+INSERT INTO nova_core.permissions (code, resource, action, description)
+VALUES
+  ('master_data.branches.read', 'master_data.branches', 'read', 'Allows read access to branches'),
+  ('master_data.branches.create', 'master_data.branches', 'create', 'Allows create access to branches'),
+  ('master_data.branches.update', 'master_data.branches', 'update', 'Allows update access to branches'),
+  ('master_data.fiscal_periods.read', 'master_data.fiscal_periods', 'read', 'Allows read access to fiscal periods'),
+  ('master_data.fiscal_periods.create', 'master_data.fiscal_periods', 'create', 'Allows create access to fiscal periods'),
+  ('master_data.fiscal_periods.update', 'master_data.fiscal_periods', 'update', 'Allows update access to fiscal periods'),
+  ('master_data.currencies.read', 'master_data.currencies', 'read', 'Allows read access to currencies'),
+  ('master_data.currencies.create', 'master_data.currencies', 'create', 'Allows create access to currencies'),
+  ('master_data.currencies.update', 'master_data.currencies', 'update', 'Allows update access to currencies'),
+  ('master_data.units_of_measure.read', 'master_data.units_of_measure', 'read', 'Allows read access to units of measure'),
+  ('master_data.units_of_measure.create', 'master_data.units_of_measure', 'create', 'Allows create access to units of measure'),
+  ('master_data.units_of_measure.update', 'master_data.units_of_measure', 'update', 'Allows update access to units of measure'),
+  ('master_data.tax_codes.read', 'master_data.tax_codes', 'read', 'Allows read access to tax codes'),
+  ('master_data.tax_codes.create', 'master_data.tax_codes', 'create', 'Allows create access to tax codes'),
+  ('master_data.tax_codes.update', 'master_data.tax_codes', 'update', 'Allows update access to tax codes'),
+  ('master_data.payment_methods.read', 'master_data.payment_methods', 'read', 'Allows read access to payment methods'),
+  ('master_data.payment_methods.create', 'master_data.payment_methods', 'create', 'Allows create access to payment methods'),
+  ('master_data.payment_methods.update', 'master_data.payment_methods', 'update', 'Allows update access to payment methods'),
+  ('master_data.customers.read', 'master_data.customers', 'read', 'Allows read access to customers'),
+  ('master_data.customers.create', 'master_data.customers', 'create', 'Allows create access to customers'),
+  ('master_data.customers.update', 'master_data.customers', 'update', 'Allows update access to customers'),
+  ('master_data.suppliers.read', 'master_data.suppliers', 'read', 'Allows read access to suppliers'),
+  ('master_data.suppliers.create', 'master_data.suppliers', 'create', 'Allows create access to suppliers'),
+  ('master_data.suppliers.update', 'master_data.suppliers', 'update', 'Allows update access to suppliers'),
+  ('master_data.item_categories.read', 'master_data.item_categories', 'read', 'Allows read access to item categories'),
+  ('master_data.item_categories.create', 'master_data.item_categories', 'create', 'Allows create access to item categories'),
+  ('master_data.item_categories.update', 'master_data.item_categories', 'update', 'Allows update access to item categories'),
+  ('master_data.items.read', 'master_data.items', 'read', 'Allows read access to items'),
+  ('master_data.items.create', 'master_data.items', 'create', 'Allows create access to items'),
+  ('master_data.items.update', 'master_data.items', 'update', 'Allows update access to items'),
+  ('master_data.warehouses.read', 'master_data.warehouses', 'read', 'Allows read access to warehouses'),
+  ('master_data.warehouses.create', 'master_data.warehouses', 'create', 'Allows create access to warehouses'),
+  ('master_data.warehouses.update', 'master_data.warehouses', 'update', 'Allows update access to warehouses')
+ON CONFLICT DO NOTHING;

@@ -1,18 +1,18 @@
 import { Module } from '@nestjs/common';
 import { IdentityModule } from '../identity/identity.module';
+import { AuditModule } from '../audit/audit.module';
 import { AuthController } from './auth.controller';
-import { AuthService } from './auth.service';
-import { AuthTokenService } from './auth-token.service';
-import { PasswordService } from './password.service';
+import { SupabaseAuthService } from './supabase-auth.service';
+import { SupabaseAuthClient } from './supabase-auth.client';
+import { createSupabaseAuthClient } from './supabase-auth.module.providers';
 
 @Module({
-  imports: [IdentityModule],
+  imports: [IdentityModule, AuditModule],
   controllers: [AuthController],
   providers: [
-    AuthService,
-    PasswordService,
-    { provide: AuthTokenService, useFactory: () => new AuthTokenService(process.env.JWT_SECRET ?? '') },
+    SupabaseAuthService,
+    { provide: SupabaseAuthClient, useFactory: createSupabaseAuthClient },
   ],
-  exports: [AuthService, AuthTokenService, PasswordService],
+  exports: [SupabaseAuthService],
 })
 export class AuthModule {}

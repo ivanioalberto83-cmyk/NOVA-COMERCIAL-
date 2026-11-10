@@ -3,14 +3,15 @@ import { APP_GUARD } from '@nestjs/core';
 import { HealthController } from './health/health.controller';
 import { IdentityModule } from './identity/identity.module';
 import { AuthModule } from './auth/auth.module';
-import { AuthSessionGuard } from './auth/auth-session.guard';
+import { SupabaseAuthSessionGuard } from './auth/supabase-auth-session.guard';
 import { AuthorizationGuard } from './security/authorization.guard';
+import { MasterDataModule } from './master-data/master-data.module';
 
 @Module({
-  imports: [IdentityModule, AuthModule],
+  imports: [IdentityModule, AuthModule, MasterDataModule],
   controllers: [HealthController],
   providers: [
-    { provide: APP_GUARD, useClass: AuthSessionGuard },
+    { provide: APP_GUARD, useClass: SupabaseAuthSessionGuard },
     { provide: APP_GUARD, useClass: AuthorizationGuard },
   ],
 })
