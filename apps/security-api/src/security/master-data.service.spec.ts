@@ -77,6 +77,14 @@ describe('MasterDataService', () => {
     );
   });
 
+  it('does not allow required identifiers to be cleared during updates', async () => {
+    const service = new MasterDataService({} as never, { write: async () => undefined } as never);
+    await assert.rejects(
+      service.update('branches', context, 'b4a1c111-3c32-4a45-9a0b-31d9f4c9a111', { code: '' }),
+      BadRequestException,
+    );
+  });
+
   it('validates exact decimal strings to preserve NUMERIC precision', async () => {
     const service = new MasterDataService({} as never, { write: async () => undefined } as never);
     await assert.rejects(
