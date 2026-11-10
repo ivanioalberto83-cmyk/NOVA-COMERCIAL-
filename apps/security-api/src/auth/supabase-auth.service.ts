@@ -1,5 +1,6 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, ServiceUnavailableException, UnauthorizedException } from '@nestjs/common';
 import { SupabaseIdentityRepository } from '../identity/supabase-identity.repository';
+import { SupabaseAuditRepository, AuditEventInput } from '../audit/supabase-audit.repository';
 import { SupabaseAuthClient, SupabaseAuthSession, SupabaseAuthUser } from './supabase-auth.client';
 
 const INVALID_ACCESS = 'Invalid credentials or inactive access';
@@ -20,6 +21,7 @@ export class SupabaseAuthService {
   constructor(
     private readonly provider: SupabaseAuthClient,
     private readonly identity: SupabaseIdentityRepository,
+    private readonly audit: SupabaseAuditRepository,
   ) {}
 
   async login(input: { email: string; password: string; organizationId: string; productCode: string }) {
@@ -27,6 +29,13 @@ export class SupabaseAuthService {
     try {
       session = await this.provider.signInWithPassword(input.email.trim().toLowerCase(), input.password);
     } catch {
+      await this.recordBestEffort({
+        eventType: 'authentication',
+        action: 'login',
+        outcome: 'failure',
+        severity: 'warning',
+        metadata: { reason: 'invalid_credentials' },
+      });
       throw new UnauthorizedException(INVALID_ACCESS);
     }
 
@@ -35,8 +44,35 @@ export class SupabaseAuthService {
     );
     if (!membership) {
       await this.provider.signOut(session.accessToken).catch(() => undefined);
+      await this.recordBestEffort({
+        actorUserId: session.user.id,
+        eventType: 'authentication',
+        action: 'login',
+        outcome: 'denied',
+        severity: 'warning',
+        metadata: { reason: 'inactive_membership_or_product', productCode: input.productCode },
+      });
       throw new UnauthorizedException(INVALID_ACCESS);
     }
+
+    try {
+      await this.audit.write({
+        actorUserId: session.user.id,
+        organizationId: membership.organizationId,
+        productId: membership.productId,
+        eventType: 'authentication',
+        action: 'login',
+        resourceType: 'membership',
+        resourceId: membership.membershipId,
+        outcome: 'success',
+        severity: 'info',
+        metadata: { productCode: membership.productCode },
+      });
+    } catch {
+      await this.provider.signOut(session.accessToken).catch(() => undefined);
+      throw new ServiceUnavailableException('Authentication audit could not be recorded');
+    }
+
     return {
       tokenType: session.tokenType,
       accessToken: session.accessToken,
@@ -55,6 +91,13 @@ export class SupabaseAuthService {
     try {
       session = await this.provider.refreshSession(input.refreshToken);
     } catch {
+      await this.recordBestEffort({
+        eventType: 'authentication',
+        action: 'refresh',
+        outcome: 'failure',
+        severity: 'warning',
+        metadata: { reason: 'invalid_refresh_token' },
+      });
       throw new UnauthorizedException('Invalid refresh token');
     }
     const membership = await this.identity.findActiveProductMembership(
@@ -62,8 +105,35 @@ export class SupabaseAuthService {
     );
     if (!membership) {
       await this.provider.signOut(session.accessToken).catch(() => undefined);
+      await this.recordBestEffort({
+        actorUserId: session.user.id,
+        eventType: 'authentication',
+        action: 'refresh',
+        outcome: 'denied',
+        severity: 'warning',
+        metadata: { reason: 'inactive_membership_or_product', productCode: input.productCode },
+      });
       throw new UnauthorizedException(INVALID_ACCESS);
     }
+
+    try {
+      await this.audit.write({
+        actorUserId: session.user.id,
+        organizationId: membership.organizationId,
+        productId: membership.productId,
+        eventType: 'authentication',
+        action: 'refresh',
+        resourceType: 'membership',
+        resourceId: membership.membershipId,
+        outcome: 'success',
+        severity: 'info',
+        metadata: { productCode: membership.productCode },
+      });
+    } catch {
+      await this.provider.signOut(session.accessToken).catch(() => undefined);
+      throw new ServiceUnavailableException('Authentication audit could not be recorded');
+    }
+
     return {
       tokenType: session.tokenType,
       accessToken: session.accessToken,
@@ -80,8 +150,20 @@ export class SupabaseAuthService {
   async logout(accessToken: string): Promise<{ revoked: boolean }> {
     try {
       await this.provider.signOut(accessToken);
+      await this.recordBestEffort({
+        eventType: 'authentication',
+        action: 'logout',
+        outcome: 'success',
+        severity: 'info',
+      });
       return { revoked: true };
     } catch {
+      await this.recordBestEffort({
+        eventType: 'authentication',
+        action: 'logout',
+        outcome: 'failure',
+        severity: 'warning',
+      });
       return { revoked: false };
     }
   }
@@ -112,5 +194,9 @@ export class SupabaseAuthService {
       roles: membership.roles,
       permissions: membership.permissions,
     };
+  }
+
+  private async recordBestEffort(event: AuditEventInput): Promise<void> {
+    await this.audit.write(event).catch(() => undefined);
   }
 }
